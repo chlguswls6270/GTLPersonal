@@ -26,6 +26,9 @@ app.use(bodyParser.urlencoded({extended:false}));
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+//array of all songs. need to optimize later
+let songArray = [];
+
 app.get("/", (request, response) => {
     const variables = {
     };
@@ -35,8 +38,8 @@ app.get("/", (request, response) => {
 
 app.get("/songList", async (req, res) => {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-    let result = []
-    let songArray = []
+    songArray = [];
+    let result = [];
     try {
         await client.connect();
         let filter = {};
@@ -111,22 +114,48 @@ app.post("/addGame", async (request, response) => {
     response.render("confirm", variables);
 });
 
-app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd', (req, res) => {
+app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
     const id = req.params.id;
     const startTime = convertTimeToSeconds(req.params.startTime);
     const quizStart = convertTimeToSeconds(req.params.quizStart);
     const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    const objID = req.params.objID;
 
     const variables = {
         id: id, 
         startTime: startTime, 
         quizStartTime: quizStart, 
         quizEndTime: quizEnd,
-        portNumber: portNumber
+        portNumber: portNumber,
+        objID: objID,
     };
 
     res.render('game', variables);
     
+});
+
+app.post("/songList/game/", (req, res) => {
+    let { userAttempt, objID } = req.body;
+    let song = songArray.find(elem => {
+        return elem._id.toString() === objID
+    });
+    let result = "";
+
+    console.log("answer: " + song.lyrics);
+    console.log("user:   " + userAttempt + "////");
+    
+    if (song.lyrics === userAttempt) {
+        result = "you got it right!"
+    } else {
+        result = "you are wrong!"
+    }
+
+    variable = {
+        result: result,
+        portNumber: portNumber
+    };
+
+    res.render("result", variable);
 });
 
 function extractYouTubeVideoID(url) {

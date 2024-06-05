@@ -43,7 +43,7 @@
     <div class="centered">
         <div class="grid-container">
             <% songArray.forEach(function(song) { %>
-                <div class="card" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>'">
+                <div class="card" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
                     <%= song.title %>
                     <br><br>
                     <%= song.artist %>
