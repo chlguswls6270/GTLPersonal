@@ -1,0 +1,40 @@
+/* This CSS file will style the main page. */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: Arial, sans-serif; /* You can choose the font that fits your game's theme */
+    background: #93B7BE;
+}
+
+button {
+    font-size: 30px; /* Larger text makes the button easier to read */
+    padding: 10px 20px; /* Padding around the text */
+    cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
+    background-color: #D4F5F5; /* A nice, game-themed green color for the button */
+    color: D4F5F5;
+    border: none;
+    border-radius: 5px; /* Rounded corners for the button */
+    transition: background-color 0.3s; /* Smooth transition for button hover effect */
+    font-weight: bold;
+    margin: 10px;
+}
+
+button:hover {
+    background-color: #93B7BE; /* Slightly darker green when hovered */
+    border: 2px solid #D4F5F5;
+}
+
+.centered {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.player {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+}

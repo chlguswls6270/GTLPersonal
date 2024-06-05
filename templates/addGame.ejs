@@ -1,0 +1,37 @@
+<!-- DO NOT MODIFY THIS FILE -->
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="/css/styles.css">
+
+	<title>Place Order</title>
+</head>
+
+<body>
+	<h1>Application</h1>
+	<form action='http://localhost:<%- portNumber %>/addGame' method="post" onsubmit="return confirm('Are you sure you want to submit your application?\nYou will not be able to change your information once submited.');">
+		<fieldset>
+			<label>Song Name: <input type="text" name="songName"/></label>
+			<label>Artist: <input type="test" name="artist"></label>
+            <br><br>
+			<label>Target Lyrics:</label><br>
+            <label><textarea rows="5" cols="80" name="targetLyrics"></textarea></label>
+			<br><br>
+			<label>Start: <input type="text" name="startTime" placeholder="00:00"/></label>
+			<label>End: <input type="text" name="endTime" placeholder="00:00"/></label>
+			<label>Quiz Start: <input type="text" name="quizStartTime" placeholder="00:00"/></label>
+			<label>Quiz End: <input type="text" name="quizEndTime" placeholder="00:00"/></label>
+			<br><br>
+			<label>Youtube Link: <input type="text" name="youtubeLink"/></label>
+		</fieldset>
+		<br>
+
+		<input type="reset" />
+		<input type="submit" value="Submit Application"/>
+	</form>
+    <a href="http://localhost:<%- portNumber %>">Home</a>
+</body>
+
+</html>

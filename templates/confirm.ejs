@@ -1,0 +1,29 @@
+<!-- DO NOT MODIFY THIS FILE -->
+<!doctype html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="/css/styles.css">
+
+	<title>Order Confirmation</title>
+</head>
+
+<body>
+	<h1>New Quiz Made!</h1>
+	<div>
+		<strong>artist:<br></strong><%- artist %><br>
+		<strong>title:<br></strong><%- title %><br>
+		<strong>targetLyrics: </strong><%- lyrics %><br>
+		<strong>startTime:<br></strong><%- startTime %><br>
+		<strong>quizStartTime:<br></strong><%- quizStartTime %><br>
+		<strong>quizEndTime:<br></strong><%- quizEndTime %><br>
+		<strong>youtubeLink:<br></strong><%- youtubeURL %><br>
+        <hr>
+		<em>Task completed at <%- time %></em>
+        <hr>
+        <a href="http://localhost:<%- portNumber %>">Home</a>
+	</div>
+</body>
+
+</html>

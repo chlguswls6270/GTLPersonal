@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Player</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #player-container {
+            position: relative;
+            width: 640px;
+            height: 390px;
+            margin-bottom: 20px; /* Add some space between the player and the form */
+        }
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        #lyrics{
+            font-size: 20px;
+        }
+        #youtubeURL {
+            display: none;
+        }
+        #youtubeURLDisplay {
+            display: block;
+        }
+        #whole {
+            display: none;
+        }
+        
+    </style>
+</head>
+<body>
+    <div id="urlField">
+        <label>youtube url:<input type="text" name="youtubeURL" id="youtubeURLDisplay"/></label>
+        <button id="youtubeURLSubmit">Submit URL</button>
+    </div>
+    <div id="whole">
+        <div id="player-container">
+            <div id="player"></div>
+        </div>
+        
+        <div class = "buttons">
+            <button id="startTimeButton">Music starts here</button>
+            <button id="quizStartTimeButton">Quiz starts here</button>
+            <button id="quizEndTimeButton">Quiz ends here</button>
+        </div>
+
+        <form action='http://localhost:<%- portNumber %>/addGame' name = "timeForm" method="post" onsubmit="return confirm('Are you sure you want to submit your application?\nYou will not be able to change your information once submited.');">
+            <fieldset>
+                <label>music starts:<input type="text" name="startTime" id="startTime"/></label>
+                <label>quiz starts:<input type="text" name="quizStartTime" id="quizStartTime"></label>
+                <label>quiz ends: <input type="text" name="quizEndTime" id="quizEndTime"></label>
+                <input type="text" name="youtubeURL" id="youtubeURLForm"/>
+                <br><br>
+                <label>lyrics</label><br>
+                <textarea rows="2" cols="50" name="lyrics" id="lyrics"></textarea>
+                
+                <br><br>
+                <input type="reset" />
+                <input type="submit" value="Submit Application"/>
+            </fieldset>
+            <br>
+        </form>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        let startTime;
+        let quizStartTime;
+        let quizEndTime;
+        let youtubeID;
+        
+        const youtubeSubmitButton = document.getElementById('youtubeURLSubmit');
+
+        youtubeSubmitButton.addEventListener('click', () => {
+            console.log("youtubeID");
+            let url = document.getElementById("youtubeURLDisplay").value;
+            console.log("url: " + url)
+            youtubeID = extractYouTubeVideoID(url);
+            document.getElementById('whole').style.display = 'block';
+            document.getElementById('urlField').style.display = 'none';
+            document.getElementById('youtubeURLForm').value = url;
+            initializePlayer(youtubeID);
+        });
+
+        function initializePlayer(youtubeID) {
+            if (player) {
+                player.destroy();
+            }
+
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: youtubeID, // variable
+                playerVars: {
+                    'controls': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': 0 //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: "nFYwcndNuOY", // variable
+                playerVars: {
+                    'controls': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': 0, //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            const startTimeButton = document.getElementById('startTimeButton');
+            const quizStartTimeButton = document.getElementById('quizStartTimeButton');
+            const quizEndTimeButton = document.getElementById('quizEndTimeButton');
+
+            startTimeButton.addEventListener('click', () => {
+                let time = player.getCurrentTime();
+                let field = document.getElementById('startTime');
+                field.value = formatTime(time);
+            });
+
+            quizStartTimeButton.addEventListener('click', () => {
+                let time = player.getCurrentTime();
+                let field = document.getElementById('quizStartTime');
+                field.value = formatTime(time);
+            });
+
+            quizEndTimeButton.addEventListener('click', () => {
+                let time = player.getCurrentTime();
+                let field = document.getElementById('quizEndTime');
+                field.value = formatTime(time);
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            
+        }
+
+        function extractYouTubeVideoID(url) {
+            const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)([^\&\?\/]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function formatTime(seconds) {
+            // Round the input to the nearest whole number
+            var roundedSeconds = Math.round(seconds);
+
+            // Calculate minutes and remaining seconds
+            var minutes = Math.floor(roundedSeconds / 60);
+            var remainingSeconds = roundedSeconds % 60;
+
+            // Ensure two digits for seconds
+            var formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
+
+            // Return the formatted time string
+            return minutes + ':' + formattedSeconds;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Player</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+        }
+        #player-container {
+            position: relative;
+            width: 640px;
+            height: 390px;
+            margin-bottom: 20px; /* Add some space between the player and the form */
+        }
+        #player {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: 10; /* Ensure the overlay is above the video player */
+        }
+        .buttons {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        input[type="text"] {
+            font-size: 16px;
+            padding: 10px;
+            margin-bottom: 10px;
+            width: 300px;
+        }
+        input[type="submit"] {
+            font-size: 20px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+        .formContainer {
+            display: none; /* Initially hide the form */
+            flex-direction: column;
+            align-items: center;
+        }
+        .countdown {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 100px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* Ensure the countdown is above everything */
+        }
+        #countdown {
+            display : none;
+        }
+        #backToQuizButton {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div id="player-container">
+            <div id="player"></div>
+            <div id="overlay"></div>
+        </div>
+        <div class = "buttons">
+            <button id="playButton">Play</button>
+            <button id="pauseButton">Pause</button>
+            <button id="backToQuizButton">Back to Quiz</button>
+        </div>
+        
+        <div class="countdown" id="countdown">3</div>
+
+        <div class="formContainer" id="formContainer">
+            <input type="text" id="inputField" placeholder="Enter text here">
+            <input type="submit" id="submitButton" value="Submit">
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        let player;
+        const startTime = 80; // Start time in seconds
+        //const endTime = 100;   // End time in seconds
+        const quizStartTime = 86;
+        const quizEndTime = 91;
+        let quizStarted = false;
+        let quizSubmitted = false;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: 'MMtRxcy8PX0', // variable
+                playerVars: {
+                    'controls': 0,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': startTime, //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            const playButton = document.getElementById('playButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const backToQuizButton = document.getElementById('backToQuizButton');
+
+            playButton.addEventListener('click', () => {
+                player.seekTo(startTime);
+                player.playVideo();
+            });
+
+            pauseButton.addEventListener('click', () => {
+                player.pauseVideo();
+            });
+
+            backToQuizButton.addEventListener('click', () => {
+                player.seekTo(quizStartTime);
+                player.playVideo(); // Hide the form
+                document.getElementById('pauseOverlay').style.display = 'none'; // Hide overlay
+            });
+
+            player.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                const checkTime = setInterval(() => {
+                    const currentTime = player.getCurrentTime();
+                    if (currentTime >= quizStartTime && currentTime < quizEndTime && !quizStarted) {
+                        player.pauseVideo();
+                        clearInterval(checkTime);
+                        startCountdown();
+                        quizStarted = true;
+                        
+                    } else if (currentTime >= quizEndTime && !quizSubmitted) {
+                        player.pauseVideo();
+                        clearInterval(checkTime);
+                        document.getElementById('formContainer').style.display = 'flex'; // Show the form
+
+                    }
+                }, 1000); // Check every second
+            }
+        }
+
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'flex'; // Show the countdown element
+            let countdown = 3;
+
+            const countdownInterval = setInterval(() => {
+                countdownElement.textContent = countdown;
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; // Hide the countdown element
+                    document.getElementById('formContainer').style.display = 'flex'; // Show the form
+                    document.getElementById('backToQuizButton').style.display = 'flex';
+                    player.playVideo(); // Resume the video
+                } else {
+                    countdown--;
+                }
+            }, 1000); // Countdown every second
+        }
+
+        const submitButton = document.getElementById('submitButton');
+        submitButton.addEventListener('click', () => {
+            const inputField = document.getElementById('inputField');
+            alert(`Submitted text: ${inputField.value}`);
+            inputField.value = ''; // Clear the input field after submission
+            document.getElementById('formContainer').style.display = 'none'; // Hide the form
+            document.getElementById('backToQuizButton').style.display = 'none';
+            quizSubmitted = true;
+            player.playVideo(); // Resume the video after form submission
+        });
+    </script>
+</body>
+</html>
