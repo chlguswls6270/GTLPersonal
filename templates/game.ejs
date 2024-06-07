@@ -33,7 +33,7 @@
     <!-- Modal HTML -->
     <div id="customAlert" class="modal">
         <div class="modal-content">
-            <p>Incorrect solution. Please try again or go back to home.</p>
+            <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
             <button id="tryAgainButton">Try Again</button>
             <button id="goHomeButton">Go Back to Home</button>
         </div>
@@ -41,6 +41,8 @@
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
+        //const { exec } = require('child_process');
+
         let player;
         const startTime = <%= startTime %>; // Start time in seconds
         //const endTime = 100;   // End time in seconds
@@ -145,6 +147,7 @@
             // alert(`Submitted text: ${inputField.value}`);
             // document.getElementById('formContainer').style.display = 'none'; // Hide the form
             // document.getElementById('backToQuizButton').style.display = 'none';
+
             quizSubmitted = true;
             player.playVideo(); // Resume the video after form submission
         });

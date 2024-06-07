@@ -5,6 +5,7 @@ venv_path = os.path.abspath('/Applications/XAMPP/xamppfiles/htdocs/NolTo/venv/li
 if venv_path not in sys.path:
     sys.path.insert(0, venv_path)
 #I have no idea if this is a good practice.
+    
 import lyricsgenius
 
 def main():
