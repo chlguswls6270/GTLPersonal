@@ -21,13 +21,22 @@
         <div class="countdown" id="countdown">3</div>
 
         <div class="formContainer" id="formContainer">
-            <form action="http://localhost:<%- portNumber %>/songList/game" method="post" >
+            <form id = "userForm" action="http://localhost:<%- portNumber %>/songList/game" method="post" >
                 <input type="text" id="inputField" name="userAttempt" placeholder="Enter text here">
                 <input type="submit" id="submitButton" value="Submit">
                 <input type="text" id="objID" name="objID" value="<%- objID -%>">
             </form>
         </div>
         <a href="http://localhost:<%- portNumber %>">Home</a>
+    </div>
+
+    <!-- Modal HTML -->
+    <div id="customAlert" class="modal">
+        <div class="modal-content">
+            <p>Incorrect solution. Please try again or go back to home.</p>
+            <button id="tryAgainButton">Try Again</button>
+            <button id="goHomeButton">Go Back to Home</button>
+        </div>
     </div>
 
     <script src="https://www.youtube.com/iframe_api"></script>
@@ -64,6 +73,7 @@
             const playButton = document.getElementById('playButton');
             const pauseButton = document.getElementById('pauseButton');
             const backToQuizButton = document.getElementById('backToQuizButton');
+            const tryAgainButton = document.getElementById('tryAgainButton')
 
             playButton.addEventListener('click', () => {
                 player.seekTo(startTime);
@@ -80,6 +90,14 @@
                 document.getElementById('pauseOverlay').style.display = 'none'; // Hide overlay
             });
 
+            tryAgainButton.addEventListener('click', () => {
+                quizSubmitted = false;
+                player.seekTo(quizStartTime);
+                player.playVideo(); // Hide the form
+                document.getElementById('pauseOverlay').style.display = 'none'; // Hide overlay
+                
+            });
+
             player.playVideo();
         }
 
@@ -92,7 +110,6 @@
                         clearInterval(checkTime);
                         startCountdown();
                         quizStarted = true;
-                        
                     } else if (currentTime >= quizEndTime && !quizSubmitted) {
                         player.pauseVideo();
                         clearInterval(checkTime);
@@ -124,12 +141,36 @@
 
         const submitButton = document.getElementById('submitButton');
         submitButton.addEventListener('click', () => {
-            const inputField = document.getElementById('inputField');
-            alert(`Submitted text: ${inputField.value}`);
-            document.getElementById('formContainer').style.display = 'none'; // Hide the form
-            document.getElementById('backToQuizButton').style.display = 'none';
+            // const inputField = document.getElementById('inputField');
+            // alert(`Submitted text: ${inputField.value}`);
+            // document.getElementById('formContainer').style.display = 'none'; // Hide the form
+            // document.getElementById('backToQuizButton').style.display = 'none';
             quizSubmitted = true;
             player.playVideo(); // Resume the video after form submission
+        });
+
+        const solutionData = '<%= solution %>'
+        // Add event listener to the form
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            const userInput = document.getElementById('inputField').value;
+            
+            // Check if user input matches the solution
+            if (userInput !== solutionData) {
+                event.preventDefault(); // Prevent form submission
+                document.getElementById('customAlert').style.display = 'block';
+            }
+        });
+
+        // Handle Try Again button click
+        document.getElementById('tryAgainButton').addEventListener('click', function() {
+            console.log("=======");
+            document.getElementById('customAlert').style.display = 'none'; // Hide modal
+        });
+
+        // Handle Go Back to Home button click
+        document.getElementById('goHomeButton').addEventListener('click', function() {
+            console.log("=======");
+            window.location.href = '/'; // Redirect to home page
         });
     </script>
 </body>

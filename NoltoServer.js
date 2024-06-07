@@ -121,6 +121,11 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     const quizEnd = convertTimeToSeconds(req.params.quizEnd);
     const objID = req.params.objID;
 
+    let song = songArray.find(elem => {
+        return elem._id.toString() === objID
+    });
+    let solution = song.lyrics
+
     const variables = {
         id: id, 
         startTime: startTime, 
@@ -128,6 +133,7 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
         quizEndTime: quizEnd,
         portNumber: portNumber,
         objID: objID,
+        solution: solution,
     };
 
     res.render('game', variables);
