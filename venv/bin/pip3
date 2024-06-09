@@ -1,4 +1,4 @@
-#!/Applications/XAMPP/xamppfiles/htdocs/NolTo/venv/bin/python3
+#!/Users/Files/Project/GTL/GTLPersonal/venv/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
