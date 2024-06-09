@@ -16,9 +16,10 @@
         }
 
         .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            /* justify-content: center; */
             padding: 20px;
             width: 100%;
         }
@@ -34,6 +35,12 @@
             transition: background-color 0.3s; /* Smooth transition for button hover effect */
             font-weight: bold;
             margin: 10px;
+            border: 2px solid #D4F5F5
+        }
+
+        .card:hover {
+            background-color: #93B7BE; /* Slightly darker green when hovered */
+            border: 2px solid #D4F5F5;
         }
 
         
