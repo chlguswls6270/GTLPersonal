@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/game.css">
+    <title>game page</title>
+
+    <script>
+        const ws = new WebSocket("ws://localhost:8002")
+  
+            // 메세지 전송
+            // 메세지 전송
+            function sendMessage() {
+                const attempt = document.getElementById("inputField").value
+  
+                ws.send(attempt)
+            }
+  
+            // 메세지 수신
+            function receiveMessage(event) {
+                const chat = document.createElement("div")
+                const message = document.createTextNode(event.data)
+                chat.appendChild(message)
+    
+                const chatLog = document.getElementById("chat-log")
+                chatLog.appendChild(chat)
+            }
+  
+        ws.onmessage = receiveMessage
+    </script>
+</head>
+<body>
+    <div>
+        <div id="player-container">
+            <div id="player"></div>
+            <div id="overlay"></div>
+        </div>
+        <div class = "buttons">
+            <button id="playButton">Play</button>
+            <button id="pauseButton">Pause</button>
+            <button id="backToQuizButton">Back to Quiz</button>
+        </div>
+
+        <!-- chat fe -->
+        <div id="chat-log"></div>
+        
+        <div class="countdown" id="countdown">3</div>
+
+        <div class="formContainer" id="formContainer">
+            <form id = "userForm" action="http://localhost:<%- portNumber %>/songList/game" method="post" >
+                <input type="text" id="inputField" name="userAttempt" placeholder="Enter text here">
+                <input type="submit" id="submitButton" value="Submit" onclick="sendMessage()">
+                <input type="text" id="objID" name="objID" value="<%- objID -%>">
+            </form>
+        </div>
+        <a href="http://localhost:<%- portNumber %>">Home</a>
+    </div>
+
+    <!-- Modal HTML -->
+    <div id="customAlert" class="modal">
+        <div class="modal-content">
+            <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
+            <button id="tryAgainButton">Try Again</button>
+            <button id="goHomeButton">Go Back to Home</button>
+        </div>
+    </div>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        //const { exec } = require('child_process');
+
+        let player;
+        const startTime = <%= startTime %>; // Start time in seconds
+        //const endTime = 100;   // End time in seconds
+        const quizStartTime = <%= quizStartTime %>;
+        const quizEndTime = <%= quizEndTime %>;
+        let quizStarted = false;
+        let quizSubmitted = false;
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: '<%= id %>', // variable
+                playerVars: {
+                    'controls': 0,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': startTime, //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            const playButton = document.getElementById('playButton');
+            const pauseButton = document.getElementById('pauseButton');
+            const backToQuizButton = document.getElementById('backToQuizButton');
+            const tryAgainButton = document.getElementById('tryAgainButton')
+
+            playButton.addEventListener('click', () => {
+                player.seekTo(startTime);
+                player.playVideo();
+            });
+
+            pauseButton.addEventListener('click', () => {
+                player.pauseVideo();
+            });
+
+            backToQuizButton.addEventListener('click', () => {
+                player.seekTo(quizStartTime);
+                player.playVideo(); // Hide the form
+                document.getElementById('pauseOverlay').style.display = 'none'; // Hide overlay
+            });
+
+            tryAgainButton.addEventListener('click', () => {
+                quizSubmitted = false;
+                player.seekTo(quizStartTime);
+                player.playVideo(); // Hide the form
+                document.getElementById('pauseOverlay').style.display = 'none'; // Hide overlay
+                
+            });
+
+            player.playVideo();
+        }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                const checkTime = setInterval(() => {
+                    const currentTime = player.getCurrentTime();
+                    if (currentTime >= quizStartTime && currentTime < quizEndTime && !quizStarted) {
+                        player.pauseVideo();
+                        clearInterval(checkTime);
+                        startCountdown();
+                        quizStarted = true;
+                    } else if (currentTime >= quizEndTime && !quizSubmitted) {
+                        player.pauseVideo();
+                        clearInterval(checkTime);
+                        document.getElementById('formContainer').style.display = 'flex'; // Show the form
+
+                    }
+                }, 1000); // Check every second
+            }
+        }
+
+        function startCountdown() {
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'flex'; // Show the countdown element
+            let countdown = 3;
+
+            const countdownInterval = setInterval(() => {
+                countdownElement.textContent = countdown;
+                if (countdown === 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.style.display = 'none'; // Hide the countdown element
+                    document.getElementById('formContainer').style.display = 'flex'; // Show the form
+                    document.getElementById('backToQuizButton').style.display = 'flex';
+                    player.playVideo(); // Resume the video
+                } else {
+                    countdown--;
+                }
+            }, 1000); // Countdown every second
+        }
+
+        const submitButton = document.getElementById('submitButton');
+        submitButton.addEventListener('click', () => {
+            // const inputField = document.getElementById('inputField');
+            // alert(`Submitted text: ${inputField.value}`);
+            // document.getElementById('formContainer').style.display = 'none'; // Hide the form
+            // document.getElementById('backToQuizButton').style.display = 'none';
+
+            quizSubmitted = true;
+            player.playVideo(); // Resume the video after form submission
+        });
+
+        const solutionData = '<%= solution %>'
+        // Add event listener to the form
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            const userInput = document.getElementById('inputField').value;
+            
+            // Check if user input matches the solution
+            if (userInput !== solutionData) {
+                event.preventDefault(); // Prevent form submission
+                document.getElementById('customAlert').style.display = 'block';
+            }
+        });
+
+        // Handle Try Again button click
+        document.getElementById('tryAgainButton').addEventListener('click', function() {
+            console.log("=======");
+            document.getElementById('customAlert').style.display = 'none'; // Hide modal
+        });
+
+        // Handle Go Back to Home button click
+        document.getElementById('goHomeButton').addEventListener('click', function() {
+            console.log("=======");
+            window.location.href = '/'; // Redirect to home page
+        });
+    </script>
+</body>
+</html>

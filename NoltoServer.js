@@ -8,6 +8,9 @@ const querystring = require('querystring');
 const portNumber = 5001;
 /* Module for file reading */
 const fs = require("fs");
+const { WebSocketServer } = require("ws")
+
+const wss = new WebSocketServer({ port: 8002 })
 
 process.stdin.setEncoding("utf8");
 
@@ -63,6 +66,35 @@ app.get("/songList", async (req, res) => {
     };
 
     res.render('songList', variables);
+});
+
+app.get("/multSongList", async (req, res) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    songArray = [];
+    let result = [];
+    try {
+        await client.connect();
+        let filter = {};
+        const cursor = client.db(databaseAndCollection.db)
+        .collection(databaseAndCollection.collection)
+        .find(filter);
+        
+        result = await cursor.toArray();
+        console.log(`Found: ${result.length} movies`);
+        console.log(result);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+    result.forEach(elem => {
+        songArray.push(elem);
+    });
+    const variables = {
+        songArray: songArray
+    };
+
+    res.render('multSongList', variables);
 });
 
 app.get("/addGame", (request, response) => {
@@ -140,6 +172,32 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     
 });
 
+app.get('/multSongList/multGame/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
+    const id = req.params.id;
+    const startTime = convertTimeToSeconds(req.params.startTime);
+    const quizStart = convertTimeToSeconds(req.params.quizStart);
+    const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    const objID = req.params.objID;
+
+    let song = songArray.find(elem => {
+        return elem._id.toString() === objID
+    });
+    let solution = song.lyrics
+
+    const variables = {
+        id: id, 
+        startTime: startTime, 
+        quizStartTime: quizStart, 
+        quizEndTime: quizEnd,
+        portNumber: portNumber,
+        objID: objID,
+        solution: solution,
+    };
+
+    res.render('multGame', variables);
+    
+});
+
 app.post("/songList/game/", (req, res) => {
     let { userAttempt, objID } = req.body;
     let song = songArray.find(elem => {
@@ -175,54 +233,6 @@ function convertTimeToSeconds(time) {
     return (minutes * 60) + seconds;
 }
 
-
-
-
-//create new process to run python program
-// const { spawn } = require('child_process');
-
-// function getLyrics(artistName, songTitle) {
-//     return new Promise((resolve, reject) => {
-//         const process = spawn('python', ['LyricsGenius.py', songTitle, artistName]);
-
-//         let output = '';
-//         process.stdout.on('data', (data) => {
-//             output += data.toString();
-//         });
-
-//         process.stderr.on('data', (data) => {
-//             console.error(`stderr: ${data}`);
-//         });
-
-//         process.on('close', (code) => {
-//             if (code !== 0) {
-//                 reject(`Process exited with code ${code}`);
-//             } else {
-//                 resolve(output.trim());
-//             }
-//         });
-//     });
-// }
-// USED TO GET WHOLE MUSIC LYRICS FROM GENIUS API
-// app.get('/musicPage', async (req, res) => {
-//     try {
-//         // Fetch lyrics using the getLyrics function
-//         const lyrics = await getLyrics("NNMIXX", "Soñar");
-        
-//         // Create an object with the lyrics to pass to the EJS template
-//         const variables = {
-//             lyrics
-//         };
-
-//         // Render the musicPage template with the lyrics variable
-//         res.render('musicPage', variables);
-//     } catch (err) {
-//         console.error(err);
-//         res.status(500).send('Error retrieving lyrics');
-//     }
-// });
-
-
 // =======================
 
 app.listen(portNumber);
@@ -233,3 +243,27 @@ async function insertQuiz(client, databaseAndCollection, newQuiz) {
     const result = await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(newQuiz);
 }
 
+//======================= Websocket code
+
+// broadcast 메소드 추가
+wss.broadcast = (message) => {
+    wss.clients.forEach((client) => {
+      client.send(message);
+    });
+};
+
+wss.on("connection", (ws, request) => {
+ws.on("message", (data) => {
+    wss.broadcast(data.toString());
+});
+
+ws.on("close", () => {
+    wss.broadcast(`유저 한명이 떠났습니다. 현재 유저 ${wss.clients.size} 명`);
+});
+
+wss.broadcast(
+    `새로운 유저가 접속했습니다. 현재 유저 ${wss.clients.size} 명`
+);
+
+console.log(`새로운 유저 접속: ${request.socket.remoteAddress}`)
+})

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Card Grid</title>
+    <link rel="stylesheet" href="/css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .grid-container {
+            display: flex;
+            flex-wrap: wrap;
+            flex-direction: row;
+            /* justify-content: center; */
+            padding: 20px;
+            width: 100%;
+        }
+
+        .card {
+            font-size: 30px; /* Larger text makes the button easier to read */
+            padding: 10px 20px; /* Padding around the text */
+            cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
+            background-color: #D4F5F5; /* A nice, game-themed green color for the button */
+            color: black;
+            border: none;
+            border-radius: 5px; /* Rounded corners for the button */
+            transition: background-color 0.3s; /* Smooth transition for button hover effect */
+            font-weight: bold;
+            margin: 10px;
+            border: 2px solid #D4F5F5
+        }
+
+        .card:hover {
+            background-color: #93B7BE; /* Slightly darker green when hovered */
+            border: 2px solid #D4F5F5;
+        }
+
+        
+    </style>
+</head>
+<body>
+    <div class="centered">
+        <div class="grid-container">
+            <% songArray.forEach(function(song) { %>
+                <div class="card" onclick="window.location.href='multSongList/multGame/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
+                    <%= song.title %>
+                    <br><br>
+                    <%= song.artist %>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+
+    <script>
+        function extractYouTubeVideoID(url) {
+            const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+    </script>
+</body>
+</html>

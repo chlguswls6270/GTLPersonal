@@ -13,7 +13,11 @@
 <body>
     <div class="centered">
         <button id="start">Start Game</button>
+        <button id="multGame">Multiplayer Game</button>
         <button id="addGame">Add Game</button>
+        <div id="login">
+            <button class="login_button">google login</button>
+        </div>
     </div>
 
     <script>
@@ -25,12 +29,12 @@
         document.getElementById('addGame').addEventListener('click', function() {
             window.location.href = '/addGame';  // Change this URL to the desired page
         });
+
+        document.getElementById('multGame').addEventListener('click', function() {
+            window.location.href = '/multSongList';  // Change this URL to the desired page
+        });
     </script>
-    
-    
 </body>
-
-
 </html>
 
 
