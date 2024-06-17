@@ -81,6 +81,9 @@ input[type="submit"] {
     display: none;
 }
 
+#gameDidNotStart {
+    display: block;
+}
 /* CSS for the modal */
 .modal {
     display: none; /* Hidden by default */

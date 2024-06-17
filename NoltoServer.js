@@ -183,7 +183,7 @@ app.get('/multGame', (req, res) => {
         let pickedSongID = getRandomElement(songArray)._id.toString();
         console.log("============length of songArray: " + songArray.length);
         console.log("============picked ObjID: " + pickedSongID);
-        roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID});
+        roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
     } else { // there is a available room
         console.log("===========there was an avaible room!==========");
     }
@@ -227,7 +227,7 @@ async function insertQuiz(client, databaseAndCollection, newQuiz) {
 
 //======================= Websocket Server code
 const roomMap = new Map();
-
+let num_max_user = 3
 wss.on('connection', (ws, req) => {
     console.log("New WebSocket connection established");
     const room = new URLSearchParams(req.url.substring(1)).get('room');
@@ -235,7 +235,7 @@ wss.on('connection', (ws, req) => {
     //     roomMap.set(room, new Set());
     // }
 
-    if (!roomMap.has(room) || roomMap.get(room).clients.size > 2 || roomMap.get(room).started) {
+    if (!roomMap.has(room) || roomMap.get(room).clients.size > num_max_user || roomMap.get(room).started) {
         console.log("tried to enter a invalid room: does not exist, already started.")
         ws.close();
         return;
@@ -245,22 +245,59 @@ wss.on('connection', (ws, req) => {
     roomData.clients.add(ws);  // Add the client to the room's set
     console.log("room name: " + room)
     console.log("number of clients: " + roomData.clients.size)
-    if (roomData.clients.size === 2) {
-        console.log("for " + room + ", max reached, so game started.")
-        roomData.started = true;
-    }
 
-    ws.on('message', message => {
-        // Retrieve all clients in the room and send them the message
-        const clients = roomMap.get(room).clients;
-        if (clients) {
-            clients.forEach(client => {
-                if (client.readyState === WebSocket.OPEN) {
-                    client.send(message);
+    ws.on('message', (message) => {
+        console.log("====is it end message?" + isValidJSON(message))
+        if (isValidJSON(message)) {
+            const data = JSON.parse(message);
+            if (data.type === 'end') {
+                const clients = roomMap.get(room).clients;
+                if (clients) {
+                    clients.forEach(client => {
+                        if (client.readyState === WebSocket.OPEN) {
+                            console.log("===========game ended")
+                            client.send("game ended!");
+                        }
+                    });
                 }
-            });
+            }
+        } else {
+            // Retrieve all clients in the room and send them the message
+            const clients = roomMap.get(room).clients;
+            if (clients) {
+                clients.forEach(client => {
+                    if (client.readyState === WebSocket.OPEN) {
+                        console.log("===========user sent message")
+                        client.send(message);
+                    }
+                });
+            }
         }
     });
+
+    if (roomData.clients.size >= 2) {
+        const timeElapsed = Date.now() - roomData.startTime;
+        if (timeElapsed >= 10000 || roomData.clients.size >= num_max_user) {
+            if (roomData.timer) {
+                clearTimeout(roomData.timer);
+            }
+            setTimeout(() => {
+                    console.log("========max reached")
+                    startGame(room);
+            }, 100);
+            
+        } else {
+            if (roomData.timer) {
+                clearTimeout(roomData.timer);
+            }
+            roomData.timer = setTimeout(() => {
+                if (roomData.clients.size >= 2) {
+                    console.log("========20s passed")
+                    startGame(room);
+                }
+            }, 20000 - timeElapsed);
+        }
+    }
 
     ws.on('close', () => {
         // Remove the client from the room on disconnect
@@ -309,4 +346,31 @@ function getRandomElement(arr) {
     const randomIndex = Math.floor(Math.random() * arr.length);
     // Return the element at the random index
     return arr[randomIndex];
+}
+
+function startGame(room) {
+    const roomData = roomMap.get(room);
+    if (roomData) {
+        roomData.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                console.log("client is ready");
+                client.send(JSON.stringify({ type: 'start' }));
+            } else {
+                console.log("there was a client not ready");
+            }
+        });
+        if (roomData.timer) {
+            clearTimeout(roomData.timer);
+        }
+        roomData.started = true;
+    }
+}
+
+function isValidJSON(str) {
+    try {
+        JSON.parse(str);
+        return true;
+    } catch (e) {
+        return false;
+    }
 }

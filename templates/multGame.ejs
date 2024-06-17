@@ -40,6 +40,12 @@
         </div>
     </div>
 
+    <div id="gameDidNotStart" class="modal">
+        <div class="modal-content">
+            <p id="failMessage">game did not start yet</p>
+        </div>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         let player;
@@ -97,7 +103,7 @@
                 document.getElementById('pauseOverlay').style.display = 'none';
             });
 
-            player.playVideo();
+            //player.playVideo();
         }
 
         function onPlayerStateChange(event) {
@@ -148,8 +154,12 @@
         document.getElementById('userForm').addEventListener('submit', function(event) {
             const userInput = document.getElementById('inputField').value;
             if (userInput !== solutionData) {
+                console.log("==========got it wrong")
                 event.preventDefault();
                 document.getElementById('customAlert').style.display = 'block';
+            } else {
+                console.log("==========got it right")
+                endGame()
             }
         });
 

@@ -161,6 +161,8 @@
             if (userInput !== solutionData) {
                 event.preventDefault(); // Prevent form submission
                 document.getElementById('customAlert').style.display = 'block';
+            } else {
+                endGame()
             }
         });
 
