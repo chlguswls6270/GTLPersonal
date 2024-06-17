@@ -1,5 +1,6 @@
 const http = require("http");
 const path = require("path");
+const { createServer } = require('http');
 const express = require("express");   /* Accessing express module */
 const bodyParser = require("body-parser");
 const app = express();  /* app is a request handler function */
@@ -8,9 +9,11 @@ const querystring = require('querystring');
 const portNumber = 5001;
 /* Module for file reading */
 const fs = require("fs");
-const { WebSocketServer } = require("ws")
+const WebSocket = require('ws');
 
-const wss = new WebSocketServer({ port: 8002 })
+const server = createServer(app);
+
+const wss = new WebSocket.Server({ server });
 
 process.stdin.setEncoding("utf8");
 
@@ -32,7 +35,28 @@ app.use(express.static('public'));
 //array of all songs. need to optimize later
 let songArray = [];
 
-app.get("/", (request, response) => {
+app.get("/", async (request, response) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    songArray = [];
+    let result = [];
+    try {
+        await client.connect();
+        let filter = {};
+        const cursor = client.db(databaseAndCollection.db)
+        .collection(databaseAndCollection.collection)
+        .find(filter);
+        
+        result = await cursor.toArray();
+        console.log(`Found: ${result.length} songs`);
+        //console.log(result);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+    result.forEach(elem => {
+        songArray.push(elem);
+    });
     const variables = {
     };
       
@@ -40,61 +64,11 @@ app.get("/", (request, response) => {
 });
 
 app.get("/songList", async (req, res) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-    songArray = [];
-    let result = [];
-    try {
-        await client.connect();
-        let filter = {};
-        const cursor = client.db(databaseAndCollection.db)
-        .collection(databaseAndCollection.collection)
-        .find(filter);
-        
-        result = await cursor.toArray();
-        console.log(`Found: ${result.length} movies`);
-        console.log(result);
-    } catch (e) {
-        console.error(e);
-    } finally {
-        await client.close();
-    }
-    result.forEach(elem => {
-        songArray.push(elem);
-    });
     const variables = {
         songArray: songArray
     };
 
     res.render('songList', variables);
-});
-
-app.get("/multSongList", async (req, res) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-    songArray = [];
-    let result = [];
-    try {
-        await client.connect();
-        let filter = {};
-        const cursor = client.db(databaseAndCollection.db)
-        .collection(databaseAndCollection.collection)
-        .find(filter);
-        
-        result = await cursor.toArray();
-        console.log(`Found: ${result.length} movies`);
-        console.log(result);
-    } catch (e) {
-        console.error(e);
-    } finally {
-        await client.close();
-    }
-    result.forEach(elem => {
-        songArray.push(elem);
-    });
-    const variables = {
-        songArray: songArray
-    };
-
-    res.render('multSongList', variables);
 });
 
 app.get("/addGame", (request, response) => {
@@ -172,32 +146,6 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     
 });
 
-app.get('/multSongList/multGame/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
-    const id = req.params.id;
-    const startTime = convertTimeToSeconds(req.params.startTime);
-    const quizStart = convertTimeToSeconds(req.params.quizStart);
-    const quizEnd = convertTimeToSeconds(req.params.quizEnd);
-    const objID = req.params.objID;
-
-    let song = songArray.find(elem => {
-        return elem._id.toString() === objID
-    });
-    let solution = song.lyrics
-
-    const variables = {
-        id: id, 
-        startTime: startTime, 
-        quizStartTime: quizStart, 
-        quizEndTime: quizEnd,
-        portNumber: portNumber,
-        objID: objID,
-        solution: solution,
-    };
-
-    res.render('multGame', variables);
-    
-});
-
 app.post("/songList/game/", (req, res) => {
     let { userAttempt, objID } = req.body;
     let song = songArray.find(elem => {
@@ -222,6 +170,129 @@ app.post("/songList/game/", (req, res) => {
     res.render("result", variable);
 });
 
+app.get('/multGame', (req, res) => {
+    let roomNumber = getFirstFalseValue();
+    if (roomNumber == null) { // there is no available rooms
+        console.log("===========no available rooms. making a new room==========");
+        //make a new room number
+        roomNumber = generateRandomString(8);
+        while (roomMap.has(roomNumber)) {
+            roomNumber = generateRandomString(8);
+        }
+        //pick a game and attatch it to the roomName
+        let pickedSongID = getRandomElement(songArray)._id.toString();
+        console.log("============length of songArray: " + songArray.length);
+        console.log("============picked ObjID: " + pickedSongID);
+        roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID});
+    } else { // there is a available room
+        console.log("===========there was an avaible room!==========");
+    }
+    res.redirect("/" + roomNumber)
+});
+
+app.get('/:room', (req, res) => {
+    let room = req.params.room;
+    let roomInfo = roomMap.get(room);
+    let objID = roomInfo.songID;
+    let song = songArray.find(elem => {
+        return elem._id.toString() === objID
+    });
+    const startTime = convertTimeToSeconds(song.startTime);
+    const quizStart = convertTimeToSeconds(song.quizStartTime);
+    const quizEnd = convertTimeToSeconds(song.quizEndTime);
+    // console.log("============objID: " + objID);
+    // console.log("============song found: " + song);
+    // console.log("============youtubeURL: " + song.youtubeURL);
+    const variables = {
+        id: song.youtubeURL,
+        startTime: startTime,
+        quizStartTime: quizStart,
+        quizEndTime: quizEnd,
+        portNumber: portNumber,
+        objID: objID,
+        solution: song.lyrics,
+    };
+
+    res.render('multGame', variables);
+});
+
+// =======================
+
+server.listen(portNumber, () => console.log(`Server listening on http://localhost:${portNumber}`));
+
+//======================= MondgoDB code
+async function insertQuiz(client, databaseAndCollection, newQuiz) {
+    const result = await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(newQuiz);
+}
+
+//======================= Websocket Server code
+const roomMap = new Map();
+
+wss.on('connection', (ws, req) => {
+    console.log("New WebSocket connection established");
+    const room = new URLSearchParams(req.url.substring(1)).get('room');
+    // if (!roomMap.has(room)) {
+    //     roomMap.set(room, new Set());
+    // }
+
+    if (!roomMap.has(room) || roomMap.get(room).clients.size > 2 || roomMap.get(room).started) {
+        console.log("tried to enter a invalid room: does not exist, already started.")
+        ws.close();
+        return;
+    }
+
+    const roomData = roomMap.get(room);
+    roomData.clients.add(ws);  // Add the client to the room's set
+    console.log("room name: " + room)
+    console.log("number of clients: " + roomData.clients.size)
+    if (roomData.clients.size === 2) {
+        console.log("for " + room + ", max reached, so game started.")
+        roomData.started = true;
+    }
+
+    ws.on('message', message => {
+        // Retrieve all clients in the room and send them the message
+        const clients = roomMap.get(room).clients;
+        if (clients) {
+            clients.forEach(client => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(message);
+                }
+            });
+        }
+    });
+
+    ws.on('close', () => {
+        // Remove the client from the room on disconnect
+        roomMap.get(room)?.clients.delete(ws);
+        if (roomMap.get(room).clients.size === 0) {
+            roomMap.delete(room); // Optionally clean up empty room
+        }
+    });
+});
+
+
+
+//======================= helper function
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+}
+
+// Function to get the first value with false boolean field
+function getFirstFalseValue() {
+    for (let [key, value] of roomMap) {
+      if (!value.started) {
+        return key;
+      }
+    }
+    return null; // or undefined, if no such value is found
+}
+
 function extractYouTubeVideoID(url) {
     const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)([^\&\?\/]+)/;
     const match = url.match(regex);
@@ -233,37 +304,9 @@ function convertTimeToSeconds(time) {
     return (minutes * 60) + seconds;
 }
 
-// =======================
-
-app.listen(portNumber);
-process.stdout.write(`Web server started and running at http://localhost:${portNumber}\n`);
-
-//======================= MondgoDB code
-async function insertQuiz(client, databaseAndCollection, newQuiz) {
-    const result = await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(newQuiz);
+function getRandomElement(arr) {
+    // Generate a random index based on the array length
+    const randomIndex = Math.floor(Math.random() * arr.length);
+    // Return the element at the random index
+    return arr[randomIndex];
 }
-
-//======================= Websocket code
-
-// broadcast 메소드 추가
-wss.broadcast = (message) => {
-    wss.clients.forEach((client) => {
-      client.send(message);
-    });
-};
-
-wss.on("connection", (ws, request) => {
-ws.on("message", (data) => {
-    wss.broadcast(data.toString());
-});
-
-ws.on("close", () => {
-    wss.broadcast(`유저 한명이 떠났습니다. 현재 유저 ${wss.clients.size} 명`);
-});
-
-wss.broadcast(
-    `새로운 유저가 접속했습니다. 현재 유저 ${wss.clients.size} 명`
-);
-
-console.log(`새로운 유저 접속: ${request.socket.remoteAddress}`)
-})
