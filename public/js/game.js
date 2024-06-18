@@ -13,8 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const data = JSON.parse(event.data);
             if (data.type === 'start') {
                 console.log("starting the game");
-                
                 startGame();
+            } else if (data.type === 'end') {
+                if (data.message === 'you lost!') {
+                    console.log("game ended. redirecting to result page")
+                    window.location.href = '/multResult/lost'
+                } else if (data.message === 'you won!') {
+                    console.log("game ended. redirecting to result page")
+                    window.location.href = '/multResult/won'
+                }
+                
             }
         } else if (typeof event.data === 'string') {
             const message = document.createElement('div');
@@ -48,10 +56,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Game Started!");
         // Update the UI or game state to indicate the game has started
         document.getElementById('gameDidNotStart').style.display = 'none';
-        setTimeout(() => {
-            //wait for the player to load
-            player.playVideo();
-        }, 1000);
+        playRequested = true;
+        player.playVideo();
+        
     }
 
     function isValidJSON(str) {

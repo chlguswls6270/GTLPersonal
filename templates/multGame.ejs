@@ -54,6 +54,7 @@
         const quizEndTime = "<%= quizEndTime %>";
         let quizStarted = false;
         let quizSubmitted = false;
+        let playRequested = false;
 
         function onYouTubeIframeAPIReady() {
             console.log('YouTube IFrame API is ready');
@@ -103,6 +104,9 @@
                 document.getElementById('pauseOverlay').style.display = 'none';
             });
 
+            if (playRequested) {
+                player.playVideo();
+            }
             //player.playVideo();
         }
 

@@ -146,6 +146,21 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     
 });
 
+app.get("/multResult/:result", (req, res) => {
+    let result = req.params.result;
+
+    if (result === 'won') {
+        result = 'you won!'
+    } else if (result === 'lost') {
+        result = 'you lost!'
+    }
+    variable = {
+        result: result,
+        portNumber: portNumber,
+    }
+    res.render('multResult', variable)
+});
+
 app.post("/songList/game/", (req, res) => {
     let { userAttempt, objID } = req.body;
     let song = songArray.find(elem => {
@@ -253,12 +268,14 @@ wss.on('connection', (ws, req) => {
             if (data.type === 'end') {
                 const clients = roomMap.get(room).clients;
                 if (clients) {
+                    clients.delete(ws);
                     clients.forEach(client => {
                         if (client.readyState === WebSocket.OPEN) {
                             console.log("===========game ended")
-                            client.send("game ended!");
+                            client.send(JSON.stringify({ type: 'end', message: "you lost!" }));
                         }
                     });
+                    ws.send(JSON.stringify({type: 'end', message: 'you won!'}))
                 }
             }
         } else {
@@ -301,9 +318,12 @@ wss.on('connection', (ws, req) => {
 
     ws.on('close', () => {
         // Remove the client from the room on disconnect
-        roomMap.get(room)?.clients.delete(ws);
-        if (roomMap.get(room).clients.size === 0) {
-            roomMap.delete(room); // Optionally clean up empty room
+        if (roomMap.get(room) !== undefined) {
+            roomMap.get(room)?.clients.delete(ws);
+            if (roomMap.get(room).clients.size === 0) {
+                console.log("========deleting a room: " + room)
+                roomMap.delete(room); // Optionally clean up empty room
+            }
         }
     });
 });

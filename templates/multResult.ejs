@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html len="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/styles.css">
+    <title>game page</title>
+</head>
+<body>
+    <p><%- result -%></p>
+    <button id = "nextGame">Continue to next game</button>
+    <a href="/multGame">Continue to next game</a>
+    <a href="http://localhost:<%- portNumber %>">Home</a>
+    <script>
+        document.getElementById('nextGame').addEventListener('click', function() {
+            window.location.href = '/multGame';  // Change this URL to the desired page
+        });
+    </script>
+</body>
