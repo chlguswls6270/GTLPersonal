@@ -8,9 +8,6 @@ const axios = require('axios');
 const querystring = require('querystring');
 const portNumber = 5001;
 const WebSocket = require('ws');
-const CLIENT_ID = '368275375067-gflk2s46d206prcflr7kse9f69hghltl.apps.googleusercontent.com';
-const CLIENT_SECRET = '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';
-const JWT_SECRET = 'c48310a3555b307d32be1d50405f45b7d77719c70590453f92f30fa340d03e65'; // Use a secure key for signing JWT
 
 const server = createServer(app);
 
@@ -22,7 +19,7 @@ app.use(bodyParser.urlencoded({extended:false}));
 app.set("views", path.resolve(__dirname, "templates"));
 app.set("view engine", "ejs");
 
-require("dotenv").config({ path: path.resolve(__dirname, 'mongodb_folder/.env') })
+require("dotenv").config({ path: path.resolve(__dirname, 'env_var_folder/.env') })
 const uri = process.env.MONGO_CONNECTION_STRING;
 
 const databaseAndCollection = {db: process.env.MONGO_DB_NAME, collection: process.env.MONGO_COLLECTION};
@@ -337,6 +334,11 @@ wss.on('connection', (ws, req) => {
 });
 
 //======================= google login handling code
+const CLIENT_ID = process.env.CLIENT_ID;
+const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; // Use a secure key for signing JWT
+console.log("Client id: " + CLIENT_ID + ", JWT screst: " + JWT_SECRET)
+
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 const jwt = require('jsonwebtoken');
