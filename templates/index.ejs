@@ -15,12 +15,95 @@
         <button id="start">Start Game</button>
         <button id="multGame">Multiplayer Game</button>
         <button id="addGame">Add Game</button>
-        <div id="login">
+        <!-- <div id="login">
             <button class="login_button">google login</button>
+        </div> -->
+        <div id="g_id_onload"
+            data-client_id="368275375067-gflk2s46d206prcflr7kse9f69hghltl.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-callback="handleCredentialResponse"
+            data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin" id = "g_id_signin"
+            data-type="standard"></div>
+
+        <div class="profile-container" id="profile-container">
+            <img src="profile.jpg" alt="Profile Photo" id="profile-photo">
         </div>
     </div>
 
+    <div class="card" id="user-card">
+        <div class="card-content">
+            <p id="user-name">unknown</p>
+            <p id="user-score">unkown</p>
+            <button id="logout-button">Logout</button>
+        </div>
+    </div>
+
+
+
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        //check if user alrady logged-in
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("==========chlguswls")
+            let info = sessionStorage.getItem("userInfo")
+            info = JSON.parse(info)
+            console.log("=====info: " + info)
+            if (info != null) {
+                console.log("===========already logged-in to google.")
+                profilePhoto = document.getElementById("profile-photo")
+                document.getElementById("g_id_signin").style.display = "none"
+                document.getElementById("profile-container").style.display = "inline"
+                profilePhoto.src = info.image;
+                document.getElementById('user-name').textContent = info.name;
+                document.getElementById('user-score').textContent = info.score;
+            }
+        });
+
+        // code to handle google login
+        function handleCredentialResponse(response) {
+            console.log("credential I got from the response: " + response.credential);
+            fetch('/api/auth/google', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ token: response.credential })
+            })
+            .then(response => response.json())
+            .then(data => {
+                try {
+                    const decoded = decodeJWT(data.authToken);
+                    // console.log('Header:', decoded.header);
+                    console.log('Payload:', decoded.payload);
+                    // console.log('Signature:', decoded.signature);
+                    profilePhoto = document.getElementById("profile-photo")
+                    profilePhoto.src = decoded.payload.image;
+                    document.getElementById("g_id_signin").style.display = "none"
+                    document.getElementById("profile-container").style.display = "inline"
+                    let user = {
+                        image: decoded.payload.image,
+                        name: decoded.payload.name,
+                        score: decoded.payload.score,
+                        sub: decoded.payload.sub,
+                    }
+                    sessionStorage.setItem("userInfo", JSON.stringify(user))
+                    console.log("stored user in session storage")
+                    document.getElementById('user-name').textContent = decoded.payload.name;
+                    document.getElementById('user-score').textContent = decoded.payload.score;
+                } catch (error) {
+                    console.error('Error decoding JWT:', error);
+                }
+                // Store the token or user info as needed
+            })
+            .catch(error => {
+                console.error('Error during authentication:', error);
+            }); 
+        }
+
         // JavaScript to handle the button click event
         document.getElementById('start').addEventListener('click', function() {
             window.location.href = '/songList';  // Change this URL to the desired page
@@ -31,7 +114,66 @@
         });
 
         document.getElementById('multGame').addEventListener('click', function() {
+            console.log("=============clicked multGame")
             window.location.href = '/multGame';  // Change this URL to the desired page
+        });
+
+        function base64UrlDecode(str) {
+            // Replace URL-safe characters with base64 characters
+            let base64 = str.replace(/-/g, '+').replace(/_/g, '/');
+            // Pad the base64 string if needed
+            switch (base64.length % 4) {
+                case 2:
+                    base64 += '==';
+                    break;
+                case 3:
+                    base64 += '=';
+                    break;
+            }
+            // Decode base64 string
+            return decodeURIComponent(escape(window.atob(base64)));
+        }
+
+        function decodeJWT(token) {
+            const parts = token.split('.');
+            if (parts.length !== 3) {
+                throw new Error('Invalid JWT');
+            }
+
+            const header = JSON.parse(base64UrlDecode(parts[0]));
+            const payload = JSON.parse(base64UrlDecode(parts[1]));
+            const signature = parts[2]; // Note: Signature is not decoded as it is binary data
+
+            return {
+                header: header,
+                payload: payload,
+                signature: signature
+            };
+        }
+        //user info ard displaying logic
+        const profileContainer = document.getElementById('profile-container');
+        const userCard = document.getElementById('user-card');
+        const logoutButton = document.getElementById('logout-button');
+        
+        profileContainer.addEventListener('click', () => {
+            if (userCard.style.display === 'none' || userCard.style.display === '') {
+                userCard.style.display = 'block';
+            } else {
+                userCard.style.display = 'none';
+            }
+        });
+
+        logoutButton.addEventListener('click', () => {
+            // Implement logout functionality here
+            alert('Logging out...');
+            userCard.style.display = 'none';
+        });
+
+        // Close the card if clicking outside of it
+        document.addEventListener('click', (event) => {
+            if (!profileContainer.contains(event.target) && !userCard.contains(event.target)) {
+                userCard.style.display = 'none';
+            }
         });
     </script>
 </body>

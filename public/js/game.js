@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
-    const room = window.location.pathname.split('/')[1];
+    const room = window.location.pathname.split('/')[2];
     console.log("room number game.js: " + room);
     const ws = new WebSocket(`ws://${location.host}?room=${room}`);
     console.log("====chlguswls");

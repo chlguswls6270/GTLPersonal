@@ -7,9 +7,10 @@ const app = express();  /* app is a request handler function */
 const axios = require('axios');
 const querystring = require('querystring');
 const portNumber = 5001;
-/* Module for file reading */
-const fs = require("fs");
 const WebSocket = require('ws');
+const CLIENT_ID = '368275375067-gflk2s46d206prcflr7kse9f69hghltl.apps.googleusercontent.com';
+const CLIENT_SECRET = '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';
+const JWT_SECRET = 'c48310a3555b307d32be1d50405f45b7d77719c70590453f92f30fa340d03e65'; // Use a secure key for signing JWT
 
 const server = createServer(app);
 
@@ -187,6 +188,7 @@ app.post("/songList/game/", (req, res) => {
 
 app.get('/multGame', (req, res) => {
     let roomNumber = getFirstFalseValue();
+    console.log("=========roomNumber")
     if (roomNumber == null) { // there is no available rooms
         console.log("===========no available rooms. making a new room==========");
         //make a new room number
@@ -198,14 +200,16 @@ app.get('/multGame', (req, res) => {
         let pickedSongID = getRandomElement(songArray)._id.toString();
         console.log("============length of songArray: " + songArray.length);
         console.log("============picked ObjID: " + pickedSongID);
+        console.log("============adding room: " + roomNumber);
         roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
     } else { // there is a available room
         console.log("===========there was an avaible room!==========");
     }
-    res.redirect("/" + roomNumber)
+    res.redirect("/multGame/" + roomNumber)
 });
 
-app.get('/:room', (req, res) => {
+app.get('/multGame/:room', (req, res) => {
+    //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = roomMap.get(room);
     let objID = roomInfo.songID;
@@ -245,12 +249,16 @@ const roomMap = new Map();
 let num_max_user = 3
 wss.on('connection', (ws, req) => {
     console.log("New WebSocket connection established");
+    console.log("========url: " + req.url)
     const room = new URLSearchParams(req.url.substring(1)).get('room');
     // if (!roomMap.has(room)) {
     //     roomMap.set(room, new Set());
     // }
-
+    console.log("wss room name: " + room)
     if (!roomMap.has(room) || roomMap.get(room).clients.size > num_max_user || roomMap.get(room).started) {
+        console.log("room does not exists: " + !roomMap.has(room))
+        console.log("room capacity greater than max" + roomMap.get(room).clients.size > num_max_user)
+        console.log("room has started: " + oomMap.get(room).started)
         console.log("tried to enter a invalid room: does not exist, already started.")
         ws.close();
         return;
@@ -328,7 +336,81 @@ wss.on('connection', (ws, req) => {
     });
 });
 
+//======================= google login handling code
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(CLIENT_ID);
+const jwt = require('jsonwebtoken');
 
+const databaseAndCollectionUser = {db: process.env.MONGO_DB_NAME, collection: "users"};
+
+
+async function verify(token) {
+    const ticket = await client.verifyIdToken({
+        idToken: token,
+        audience: CLIENT_ID,
+    });
+    const payload = ticket.getPayload();
+    return payload;
+}
+
+app.use(express.json());
+
+
+app.post('/api/auth/google', async (req, res) => {
+    const token = req.body.token;
+    try {
+        //console.log("token gotten from the page is: " + token)
+        const user = await verify(token);
+        
+        //check if user exists in database
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+        //let result = lookUpOneEntry(client, databaseAndCollectionUser, user.sub)
+        let found = await lookUpOneEntry(client, databaseAndCollectionUser, user.sub);
+        console.log("===========2===========")
+        
+        if (!found) {
+            console.log("new user found! adding to the mongodb!");
+            found = {
+                sub: user.sub,
+                name: user.name,
+                score: 0,
+                image: user.picture,
+            };
+            await insertQuiz(client, databaseAndCollectionUser, found);
+            console.log("new user added");
+        } else {
+            console.log("user already exists!");
+        }
+        
+        // Generate JWT for session management
+        const authToken = jwt.sign(found, JWT_SECRET, { expiresIn: '1h' });
+
+        res.json({ authToken, user });
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+async function lookUpOneEntry(client, databaseAndCollection, userSub) {
+    let filter = {sub: userSub};
+    try {
+        //console.log("what is the collections? " + databaseAndCollection.collection)
+        const result = await client.db(databaseAndCollection.db)
+                            .collection(databaseAndCollection.collection)
+                            .findOne(filter);
+        //console.log("result of mogodb search is: " +result)
+        if (result) {
+            console.log('User found:', result);
+            return result;
+        } else {
+            console.log('No user was found');
+            return result;
+        }
+    } catch (error) {
+        console.error('Error looking up entry:', error);
+        return false;
+    }
+}
 
 //======================= helper function
 function generateRandomString(length) {

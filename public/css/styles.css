@@ -39,10 +39,59 @@ button:hover {
 
 }
 
-
 .player {
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh; /* Full viewport height */
+}
+
+.profile-container {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    display: none
+}
+
+.profile-container img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #fff;
+}
+
+.card {
+    display: none;
+    position: absolute;
+    top: 70px;
+    right: 10px;
+    width: 200px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    overflow: hidden;
+    z-index: 1000;
+}
+
+.card-content {
+    padding: 15px;
+}
+
+#logout-button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    background-color: #f00;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#logout-button:hover {
+    background-color: #c00;
 }
