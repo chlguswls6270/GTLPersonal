@@ -20,7 +20,7 @@
 
         <div id="chat-log"></div>
         
-        <div class="countdown" id="countdown">3</div>
+        <div class="countdown" id="countdown">wait!</div>
 
         <div class="formContainer" id="formContainer">
             <form id="userForm" action="http://localhost:<%= portNumber %>/songList/game" method="post">
@@ -163,7 +163,7 @@
                 document.getElementById('customAlert').style.display = 'block';
             } else {
                 console.log("==========got it right")
-                endGame()
+                //endGame()
             }
         });
 
@@ -176,6 +176,6 @@
         });
 
     </script>
-    <script src="/js/game.js"></script>
+    <script src="/js/multGame.js"></script>
 </body>
 </html>

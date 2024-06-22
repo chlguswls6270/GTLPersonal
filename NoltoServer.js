@@ -69,7 +69,8 @@ app.get("/songList", async (req, res) => {
     const variables = {
         songArray: songArray
     };
-
+    console.log("===========rendering songList")
+    console.log("======" + songArray)
     res.render('songList', variables);
 });
 
@@ -164,6 +165,7 @@ app.get("/multResult/:result", (req, res) => {
 });
 
 app.post("/songList/game/", (req, res) => {
+    console.log("is mult and solo game both use this????")
     let { userAttempt, objID } = req.body;
     let song = songArray.find(elem => {
         return elem._id.toString() === objID

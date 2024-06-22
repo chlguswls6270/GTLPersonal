@@ -24,7 +24,7 @@
             width: 100%;
         }
 
-        .card {
+        .songListcard {
             font-size: 30px; /* Larger text makes the button easier to read */
             padding: 10px 20px; /* Padding around the text */
             cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
@@ -35,10 +35,11 @@
             transition: background-color 0.3s; /* Smooth transition for button hover effect */
             font-weight: bold;
             margin: 10px;
-            border: 2px solid #D4F5F5
+            border: 2px solid #D4F5F5;
+            
         }
 
-        .card:hover {
+        .songListcard:hover {
             background-color: #93B7BE; /* Slightly darker green when hovered */
             border: 2px solid #D4F5F5;
         }
@@ -48,9 +49,10 @@
 </head>
 <body>
     <div class="centered">
+        <p>sdafdasf</p>
         <div class="grid-container">
             <% songArray.forEach(function(song) { %>
-                <div class="card" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
+                <div class="songListcard" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
                     <%= song.title %>
                     <br><br>
                     <%= song.artist %>
