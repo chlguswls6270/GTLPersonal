@@ -17,12 +17,20 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (data.type === 'end') {
                 if (data.message === 'you lost!') {
                     console.log("game ended. redirecting to result page")
-                    window.location.href = '/multResult/lost'
+                    window.location.href = '/multResult/lost/' + data.score
                 } else if (data.message === 'you won!') {
                     console.log("game ended. redirecting to result page")
-                    window.location.href = '/multResult/won'
+                    window.location.href = '/multResult/won/' + data.score
                 }
-                
+
+                let user = sessionStorage.getItem("userInfo")
+                user = JSON.parse(user)
+                user.score = user.score + data.score;
+                console.log("=====info: " + user)
+                if (user != null) {
+                    console.log("a piece of information in info: " + user.name)
+                }
+                sessionStorage.setItem("userInfo", JSON.stringify(user))
             }
         } else if (typeof event.data === 'string') {
             const message = document.createElement('div');

@@ -149,8 +149,9 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     
 });
 
-app.get("/multResult/:result", (req, res) => {
+app.get("/multResult/:result/:scoreChange", (req, res) => {
     let result = req.params.result;
+    const scoreChange = req.params.scoreChange;
 
     if (result === 'won') {
         result = 'you won!'
@@ -159,6 +160,7 @@ app.get("/multResult/:result", (req, res) => {
     }
     variable = {
         result: result,
+        scoreChange: scoreChange,
         portNumber: portNumber,
     }
     res.render('multResult', variable)
@@ -247,9 +249,26 @@ async function insertQuiz(client, databaseAndCollection, newQuiz) {
     const result = await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(newQuiz);
 }
 
+async function updateScore(client, databaseAndCollection, targetSub, score) {
+    let filter = {sub : targetSub};
+    let update = { $inc: score }; //inc might not exist
+
+    const result = await client.db(databaseAndCollection.db)
+    .collection(databaseAndCollection.collection)
+    .updateOne(filter, update);
+
+    console.log(`Documents modified: ${result.modifiedCount}`);
+}
+
 //======================= Websocket Server code
 const roomMap = new Map();
 let num_max_user = 3
+
+// Adding the exclude method to Set prototype
+Set.prototype.exclude = function(element) {
+    return new Set([...this].filter(el => el !== element));
+};
+
 wss.on('connection', (ws, req) => {
     console.log("New WebSocket connection established");
     console.log("========url: " + req.url)
@@ -271,7 +290,6 @@ wss.on('connection', (ws, req) => {
     roomData.clients.add(ws);  // Add the client to the room's set
     console.log("room name: " + room)
     console.log("number of clients: " + roomData.clients.size)
-
     ws.on('message', (message) => {
         console.log("====is it end message?" + isValidJSON(message))
         if (isValidJSON(message)) {
@@ -279,14 +297,18 @@ wss.on('connection', (ws, req) => {
             if (data.type === 'end') {
                 const clients = roomMap.get(room).clients;
                 if (clients) {
-                    clients.delete(ws);
-                    clients.forEach(client => {
+                    lostClients = clients.exclude(ws)
+                    console.log("num of lost clients: " + lostClients.size)
+                    lostClients.forEach(async client => {
                         if (client.readyState === WebSocket.OPEN) {
-                            console.log("===========game ended")
-                            client.send(JSON.stringify({ type: 'end', message: "you lost!" }));
+                            console.log("===========sending lost messge to ws's")
+                            client.send(JSON.stringify({ type: 'end', message: "you lost!", score: -1 }));
                         }
                     });
-                    ws.send(JSON.stringify({type: 'end', message: 'you won!'}))
+                    //calculate how many scores should be sent
+                    let currRoomNum = roomMap.get(room).clients.size;
+                    console.log("========currRoomNum: " + currRoomNum)
+                    ws.send(JSON.stringify({type: 'end', message: 'you won!', score: currRoomNum - 1}));
                 }
             }
         } else {
@@ -330,6 +352,7 @@ wss.on('connection', (ws, req) => {
     ws.on('close', () => {
         // Remove the client from the room on disconnect
         if (roomMap.get(room) !== undefined) {
+            console.log("=========deleting a user");
             roomMap.get(room)?.clients.delete(ws);
             if (roomMap.get(room).clients.size === 0) {
                 console.log("========deleting a room: " + room)
@@ -369,7 +392,6 @@ app.post('/api/auth/google', async (req, res) => {
         
         //check if user exists in database
         const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-        //let result = lookUpOneEntry(client, databaseAndCollectionUser, user.sub)
         let found = await lookUpOneEntry(client, databaseAndCollectionUser, user.sub);
         console.log("===========2===========")
         
