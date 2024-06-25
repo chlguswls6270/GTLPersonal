@@ -164,19 +164,22 @@
             startTimeButton.addEventListener('click', () => {
                 let time = player.getCurrentTime();
                 let field = document.getElementById('startTime');
-                field.value = formatTime(time);
+                //field.value = formatTime(time);
+                field.value = time;
             });
 
             quizStartTimeButton.addEventListener('click', () => {
                 let time = player.getCurrentTime();
                 let field = document.getElementById('quizStartTime');
-                field.value = formatTime(time);
+                //field.value = formatTime(time);
+                field.value = time;
             });
 
             quizEndTimeButton.addEventListener('click', () => {
                 let time = player.getCurrentTime();
                 let field = document.getElementById('quizEndTime');
-                field.value = formatTime(time);
+                //field.value = formatTime(time);
+                field.value = time;
             });
         }
 

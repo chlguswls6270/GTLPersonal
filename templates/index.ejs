@@ -89,10 +89,12 @@
                         name: decoded.payload.name,
                         score: decoded.payload.score,
                         sub: decoded.payload.sub,
+                        obj: decoded.payload._id.toString(),
                     }
                     sessionStorage.setItem("userInfo", JSON.stringify(user))
                     console.log("stored user in session storage")
                     document.getElementById('user-name').textContent = decoded.payload.name;
+                    //document.getElementById('user-score').textContent = decoded.payload._id.toString();
                     document.getElementById('user-score').textContent = decoded.payload.score;
                 } catch (error) {
                     console.error('Error decoding JWT:', error);

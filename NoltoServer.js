@@ -20,13 +20,14 @@ const wss = new WebSocket.Server({ server });
 process.stdin.setEncoding("utf8");
 
 app.use(bodyParser.urlencoded({extended:false}));
+app.use(bodyParser.json())
 app.set("views", path.resolve(__dirname, "templates"));
 app.set("view engine", "ejs");
 
 const uri = process.env.MONGO_CONNECTION_STRING;
 
 const databaseAndCollection = {db: process.env.MONGO_DB_NAME, collection: process.env.MONGO_COLLECTION};
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 app.use(bodyParser.urlencoded({extended:false}));
 
@@ -125,9 +126,12 @@ app.post("/addGame", async (request, response) => {
 
 app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
     const id = req.params.id;
-    const startTime = convertTimeToSeconds(req.params.startTime);
-    const quizStart = convertTimeToSeconds(req.params.quizStart);
-    const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    const startTime = parseFloat(req.params.startTime);
+    const quizStart = parseFloat(req.params.quizStart);
+    const quizEnd = parseFloat(req.params.quizEnd);
+    //const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    console.log("========start time: " + startTime)
+    console.log("-=======start time param: " + req.params.startTime)
     const objID = req.params.objID;
 
     let song = songArray.find(elem => {
@@ -221,12 +225,9 @@ app.get('/multGame/:room', (req, res) => {
     let song = songArray.find(elem => {
         return elem._id.toString() === objID
     });
-    const startTime = convertTimeToSeconds(song.startTime);
-    const quizStart = convertTimeToSeconds(song.quizStartTime);
-    const quizEnd = convertTimeToSeconds(song.quizEndTime);
-    // console.log("============objID: " + objID);
-    // console.log("============song found: " + song);
-    // console.log("============youtubeURL: " + song.youtubeURL);
+    const startTime =   parseFloat(song.startTime);
+    const quizStart = parseFloat(song.quizStartTime);
+    const quizEnd = parseFloat(song.quizEndTime);
     const variables = {
         id: song.youtubeURL,
         startTime: startTime,
@@ -240,6 +241,32 @@ app.get('/multGame/:room', (req, res) => {
     res.render('multGame', variables);
 });
 
+app.post("/update-score", async (req, res) => {
+    console.log("I'm in update-score endpoint!=====1")
+    console.log("just trying printing req.body" + req.body)
+    const { id, scoreChange } = req.body;
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    console.log("I'm in update-score endpoint!=====2");
+    console.log("score value in end point: " + scoreChange);
+    console.log("id value in end point: " + id);
+
+    if (!ObjectId.isValid(id)) {
+        return res.status(400).send({ message: 'Invalid ObjectId' });
+    }
+
+    try {
+        await updateScore(client, databaseAndCollectionUser, id, scoreChange)
+        console.log("I'm in update-score endpoint!=====3")
+        res.send({ message: 'Score updated successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).send({ message: 'Internal Server Error' });
+    }
+});
+
+
+
+
 // =======================
 
 server.listen(portNumber, () => console.log(`Server listening on http://localhost:${portNumber}`));
@@ -249,13 +276,18 @@ async function insertQuiz(client, databaseAndCollection, newQuiz) {
     const result = await client.db(databaseAndCollection.db).collection(databaseAndCollection.collection).insertOne(newQuiz);
 }
 
-async function updateScore(client, databaseAndCollection, targetSub, score) {
-    let filter = {sub : targetSub};
-    let update = { $inc: score }; //inc might not exist
+async function updateScore(client, databaseAndCollection, objID, score) {
+    console.log("I'm in updateScore function!====1")
+    let filter = { _id : new ObjectId(objID)}; //might be not the correct way to access objID.
+    console.log("I'm in updateScore function!====2")
+    console.log("score value is: " + score)
+    let update = { $inc: {score: score } }; //inc might not exist
+    console.log("I'm in updateScore function!====3")
 
     const result = await client.db(databaseAndCollection.db)
-    .collection(databaseAndCollection.collection)
-    .updateOne(filter, update);
+        .collection(databaseAndCollection.collection)
+        .updateOne(filter, update);
+    console.log("I'm in updateScore function!====4")
 
     console.log(`Documents modified: ${result.modifiedCount}`);
 }
@@ -408,6 +440,8 @@ app.post('/api/auth/google', async (req, res) => {
         } else {
             console.log("user already exists!");
         }
+
+        found = await lookUpOneEntry(client, databaseAndCollectionUser, user.sub);
         
         // Generate JWT for session management
         const authToken = jwt.sign(found, JWT_SECRET, { expiresIn: '1h' });

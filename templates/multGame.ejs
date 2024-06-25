@@ -67,7 +67,7 @@
                     'rel': 0,
                     'showinfo': 0,
                     'modestbranding': 1,
-                    'start': startTime
+                    'start': Math.floor(startTime)
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -110,23 +110,32 @@
             //player.playVideo();
         }
 
-        function onPlayerStateChange(event) {
-            if (event.data == YT.PlayerState.PLAYING) {
-                const checkTime = setInterval(() => {
-                    const currentTime = player.getCurrentTime();
-                    if (currentTime >= quizStartTime && currentTime < quizEndTime && !quizStarted) {
-                        player.pauseVideo();
-                        clearInterval(checkTime);
-                        startCountdown();
-                        quizStarted = true;
-                    } else if (currentTime >= quizEndTime && !quizSubmitted) {
-                        player.pauseVideo();
-                        clearInterval(checkTime);
-                        document.getElementById('formContainer').style.display = 'flex';
-                    }
-                }, 1000);
+        let checkTime;
+
+        function checkPlayerTime() {
+            const currentTime = player.getCurrentTime();
+            if (currentTime >= quizStartTime && currentTime < quizEndTime && !quizStarted) {
+                // Start countdown when quizStartTime begins
+                player.pauseVideo();
+                cancelAnimationFrame(checkTime);
+                startCountdown();
+                quizStarted = true;
+            } else if (currentTime >= quizEndTime && !quizSubmitted) {
+                player.pauseVideo();
+                cancelAnimationFrame(checkTime);
+                document.getElementById('formContainer').style.display = 'flex'; // Show the form
+            } else {
+                checkTime = requestAnimationFrame(checkPlayerTime);
             }
         }
+
+        function onPlayerStateChange(event) {
+            if (event.data == YT.PlayerState.PLAYING) {
+                checkTime = requestAnimationFrame(checkPlayerTime);
+            } else {
+                cancelAnimationFrame(checkTime); // Stop checking when the video is not playing
+            }
+        } 
 
         function startCountdown() {
             const countdownElement = document.getElementById('countdown');
@@ -140,6 +149,7 @@
                     countdownElement.style.display = 'none';
                     document.getElementById('formContainer').style.display = 'flex';
                     document.getElementById('backToQuizButton').style.display = 'flex';
+                    player.seekTo(quizStartTime);
                     player.playVideo();
                 } else {
                     countdown--;
@@ -174,6 +184,7 @@
         document.getElementById('goHomeButton').addEventListener('click', function() {
             window.location.href = '/';
         });
+
 
     </script>
     <script src="/js/multGame.js"></script>

@@ -22,15 +22,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("game ended. redirecting to result page")
                     window.location.href = '/multResult/won/' + data.score
                 }
-
-                let user = sessionStorage.getItem("userInfo")
-                user = JSON.parse(user)
-                user.score = user.score + data.score;
-                console.log("=====info: " + user)
-                if (user != null) {
-                    console.log("a piece of information in info: " + user.name)
+                let info = sessionStorage.getItem("userInfo");
+                info = JSON.parse(info)
+                if (info != null) {
+                    updateSessionStorage(data.score);
+                    updateScoreMongoDB(data.score);
                 }
-                sessionStorage.setItem("userInfo", JSON.stringify(user))
+                
             }
         } else if (typeof event.data === 'string') {
             const message = document.createElement('div');
@@ -75,6 +73,43 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         } catch (e) {
             return false;
+        }
+    }
+
+    function updateSessionStorage(scoreChange) {
+        let user = sessionStorage.getItem("userInfo")
+        user = JSON.parse(user)
+        user.score = user.score + scoreChange;
+        console.log("=====info: " + user)
+        if (user != null) {
+            console.log("a piece of information in info: " + user.name)
+        }
+        sessionStorage.setItem("userInfo", JSON.stringify(user))
+    }
+
+    async function updateScoreMongoDB(scoreChange) {
+        let user = sessionStorage.getItem("userInfo");
+        user = JSON.parse(user)
+        let id = user.obj
+        console.log("id in multGame.js: " + id)
+        console.log("score in multGame.js: " + scoreChange)
+        try {
+            const response = await fetch('/update-score', {
+                method: 'POST',
+                headers: {
+                    'Content-Type' : 'application/json',
+                },
+                body: JSON.stringify({ id: id, scoreChange: scoreChange})
+            });
+            const data = await response.json();
+            if (response.ok) {
+                console.log(data.message);
+            } else {
+                console.error('Error:', data.message);
+            }
+            
+        } catch (error) {
+            console.error('Error:', error);
         }
     }
 
