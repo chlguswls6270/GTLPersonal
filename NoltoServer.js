@@ -38,6 +38,15 @@ app.use(express.static('public'));
 let songArray = [];
 
 app.get("/", async (request, response) => {
+    
+    const variables = {
+        clientID: CLIENT_ID
+    };
+      
+    response.render("index", variables);
+});
+
+app.get("/songList", async (req, res) => {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
     songArray = [];
     let result = [];
@@ -56,17 +65,11 @@ app.get("/", async (request, response) => {
     } finally {
         await client.close();
     }
+
     result.forEach(elem => {
         songArray.push(elem);
     });
-    const variables = {
-        clientID: CLIENT_ID
-    };
-      
-    response.render("index", variables);
-});
 
-app.get("/songList", async (req, res) => {
     const variables = {
         songArray: songArray
     };
@@ -195,7 +198,7 @@ app.post("/songList/game/", (req, res) => {
     res.render("result", variable);
 });
 
-app.get('/multGame', (req, res) => {
+app.get('/multGame', async (req, res) => {
     let roomNumber = getFirstFalseValue();
     console.log("=========roomNumber")
     if (roomNumber == null) { // there is no available rooms
@@ -205,38 +208,73 @@ app.get('/multGame', (req, res) => {
         while (roomMap.has(roomNumber)) {
             roomNumber = generateRandomString(8);
         }
-        //pick a game and attatch it to the roomName
-        let pickedSongID = getRandomElement(songArray)._id.toString();
+        
+        //get random song from the db and store its info in roomMap.
+        let randSong = await getRandomDocument();
+        console.log("========randSong: " + randSong)
+        console.log("======randSong ID: " + randSong._id)
+        let pickedSongID = randSong._id.toString();
+        let songInfo = {
+            startTime: parseFloat(randSong.startTime),
+            quizStart: parseFloat(randSong.quizStartTime),
+            quizEnd: parseFloat(randSong.quizEndTime),
+            youtubeURL: randSong.youtubeURL,
+            solution: randSong.lyrics
+        }
+        
         console.log("============length of songArray: " + songArray.length);
         console.log("============picked ObjID: " + pickedSongID);
         console.log("============adding room: " + roomNumber);
-        roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
+        //roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
+        roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null, songInfo: songInfo});
     } else { // there is a available room
         console.log("===========there was an avaible room!==========");
     }
     res.redirect("/multGame/" + roomNumber)
 });
 
+async function getRandomDocument() {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+
+    try {
+        await client.connect();
+        const database = client.db(databaseAndCollection.db); // Replace with your database name
+        const collection = database.collection(databaseAndCollection.collection); // Replace with your collection name
+
+        // Use the $sample stage to get a single random document
+        const randomDocument = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
+
+        if (randomDocument.length > 0) {
+            console.log('Random Document:', randomDocument[0]);
+            return randomDocument[0];
+        } else {
+            console.log('No documents found in the collection.');
+            return null;
+        }
+    } finally {
+        await client.close();
+    }
+}
+
 app.get('/multGame/:room', (req, res) => {
     //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = roomMap.get(room);
     let objID = roomInfo.songID;
-    let song = songArray.find(elem => {
-        return elem._id.toString() === objID
-    });
-    const startTime =   parseFloat(song.startTime);
-    const quizStart = parseFloat(song.quizStartTime);
-    const quizEnd = parseFloat(song.quizEndTime);
+    
+    const startTime = roomInfo.songInfo.startTime;
+    const quizStart = roomInfo.songInfo.quizStart;
+    const quizEnd = roomInfo.songInfo.quizEnd;
     const variables = {
-        id: song.youtubeURL,
+        id: roomInfo.songInfo.youtubeURL,
         startTime: startTime,
         quizStartTime: quizStart,
         quizEndTime: quizEnd,
         portNumber: portNumber,
         objID: objID,
-        solution: song.lyrics,
+        solution: roomInfo.songInfo.solution,
     };
+    console.log("=============solution in server: " + roomInfo.songInfo.solution)
 
     res.render('multGame', variables);
 });
@@ -261,6 +299,35 @@ app.post("/update-score", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send({ message: 'Internal Server Error' });
+    }
+});
+
+app.get("/ranking", (req, res) => {
+    const variables = {
+        portNumber: portNumber
+    }
+    res.render('ranking', variables)
+});
+
+app.post("/get-ranking", async (req, res) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    let users;
+    try {
+        await client.connect();
+        const database = client.db(databaseAndCollectionUser.db); // Replace with your database name
+        const collection = database.collection(databaseAndCollectionUser.collection); // Replace with your collection name
+
+        // Find all users and sort them by score in decreasing order
+        users = await collection.find().sort({ score: -1 }).toArray();
+
+        console.log('Users sorted by score:', users);
+    } finally {
+        await client.close();
+    }
+    if (users) {
+        res.json({ users })
+    } else {
+        res.status(400).json({ error: "user array is falsy" });
     }
 });
 
@@ -395,8 +462,6 @@ wss.on('connection', (ws, req) => {
 });
 
 //======================= google login handling code
-console.log("Client id: " + CLIENT_ID + ", JWT screst: " + JWT_SECRET)
-
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 const jwt = require('jsonwebtoken');
@@ -433,7 +498,7 @@ app.post('/api/auth/google', async (req, res) => {
                 sub: user.sub,
                 name: user.name,
                 score: 0,
-                image: user.picture,
+                image: user.picture
             };
             await insertQuiz(client, databaseAndCollectionUser, found);
             console.log("new user added");
@@ -442,7 +507,10 @@ app.post('/api/auth/google', async (req, res) => {
         }
 
         found = await lookUpOneEntry(client, databaseAndCollectionUser, user.sub);
-        
+        //find user's ranking
+        let rank = await getUserRanking(client, user.sub)
+        found.rank = rank;
+        console.log("rank in login endpoint" + found.rank)
         // Generate JWT for session management
         const authToken = jwt.sign(found, JWT_SECRET, { expiresIn: '1h' });
 
@@ -450,6 +518,24 @@ app.post('/api/auth/google', async (req, res) => {
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
+});
+
+app.post('/api/logout', async (req, res) => {
+    const token = req.headers['authorization'];
+    const objId = req.body.objId;
+    
+    console.log("============logging out")
+    console.log("token in logout endpoint: " + token)
+    jwt.verify(token, JWT_SECRET, async (err, decoded) => {
+        if (err) return res.sendStatus(403); // Forbidden
+        console.log("==============no error verifying jwt")
+        const userId = decoded.sub;
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+        console.log("updated successfully")
+        
+        res.json({ message: 'Logged out successfully' });
+    });
 });
 
 async function lookUpOneEntry(client, databaseAndCollection, userSub) {
@@ -470,6 +556,32 @@ async function lookUpOneEntry(client, databaseAndCollection, userSub) {
     } catch (error) {
         console.error('Error looking up entry:', error);
         return false;
+    }
+}
+
+async function getUserRanking(client, userId) {
+    try {
+        await client.connect();
+        const database = client.db(databaseAndCollectionUser.db);
+        const collection = database.collection(databaseAndCollectionUser.collection);
+
+        // Step 1: Fetch the user's score
+        const user = await collection.findOne({ sub: userId });
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        const userScore = user.score;
+
+        // Step 2: Count the number of users with a higher score
+        const higherScoreCount = await collection.countDocuments({ score: { $gt: userScore } });
+
+        // User's rank is the number of users with a higher score + 1
+        const userRank = higherScoreCount + 1;
+        console.log("========user rank: " + userRank);
+        return userRank;
+    } finally {
+        await client.close();
     }
 }
 

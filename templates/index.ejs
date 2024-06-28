@@ -8,41 +8,45 @@
     <meta name="keywords" content="HTML5, Responsive">
     <link rel="stylesheet" href="/css/styles.css">
     <title>NolTo Main</title>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 
 <body>
-    <div class="centered">
-        <button id="start">Start Game</button>
-        <button id="multGame">Multiplayer Game</button>
-        <button id="addGame">Add Game</button>
-        <!-- <div id="login">
-            <button class="login_button">google login</button>
-        </div> -->
-        <div id="g_id_onload"
-            data-client_id="<%- clientID -%>"
-            data-context="signin"
-            data-ux_mode="popup"
-            data-callback="handleCredentialResponse"
-            data-auto_prompt="false">
+    <div class="title-container">
+        <h1>GuessTheLyrics</h1>
+    </div>
+    <div class="button-container">
+        <div class="row">
+            <button id="start">Start Game</button>
+            <button id="multGame">Multiplayer Game</button>
         </div>
-
-        <div class="g_id_signin" id = "g_id_signin"
-            data-type="standard"></div>
-
-        <div class="profile-container" id="profile-container">
-            <img src="profile.jpg" alt="Profile Photo" id="profile-photo">
+        <div class="row">
+            <button id="addGame">Add Game</button>
+            <button id="ranking">Ranking</button>
+            <div id="g_id_onload"
+                data-client_id="<%- clientID -%>"
+                data-context="signin"
+                data-ux_mode="popup"
+                data-callback="handleCredentialResponse"
+                data-auto_prompt="false">
+            </div>
+            <div class="g_id_signin" id="g_id_signin" data-type="standard"></div>
         </div>
     </div>
+
+    <div class="profile-container" id="profile-container">
+        <img src="profile.jpg" alt="Profile Photo" id="profile-photo">
+    </div>
+    
 
     <div class="card" id="user-card">
         <div class="card-content">
             <p id="user-name">unknown</p>
             <p id="user-score">unkown</p>
-            <button id="logout-button">Logout</button>
+            <p id="user-rank">unkown</p>
+            <button id="logout-button" onclick="logout()">Logout</button>
         </div>
     </div>
-
-
 
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
@@ -59,7 +63,8 @@
                 document.getElementById("profile-container").style.display = "inline"
                 profilePhoto.src = info.image;
                 document.getElementById('user-name').textContent = info.name;
-                document.getElementById('user-score').textContent = info.score;
+                document.getElementById('user-score').textContent = "score: " + info.score;
+                document.getElementById('user-rank').textContent = "rank: " + info.rank;
             }
         });
 
@@ -88,14 +93,19 @@
                         image: decoded.payload.image,
                         name: decoded.payload.name,
                         score: decoded.payload.score,
-                        sub: decoded.payload.sub,
+                        //sub: decoded.payload.sub,
                         obj: decoded.payload._id.toString(),
+                        rank: decoded.payload.rank,
                     }
+                    console.log("uesr's rank in client side: " + user.rank);
                     sessionStorage.setItem("userInfo", JSON.stringify(user))
+                    sessionStorage.setItem("authToken", data.authToken)
                     console.log("stored user in session storage")
                     document.getElementById('user-name').textContent = decoded.payload.name;
                     //document.getElementById('user-score').textContent = decoded.payload._id.toString();
                     document.getElementById('user-score').textContent = decoded.payload.score;
+                    document.getElementById('user-rank').textContent = "rank: " + info.rank;
+
                 } catch (error) {
                     console.error('Error decoding JWT:', error);
                 }
@@ -104,6 +114,23 @@
             .catch(error => {
                 console.error('Error during authentication:', error);
             }); 
+        }
+
+        async function logout() {
+            // Clear sessionStorage
+            const info = sessionStorage.getItem('userInfo');
+            const objId = info.obj
+            const authToken = sessionStorage.getItem('authToken');
+
+            sessionStorage.clear();
+            console.log("Cleared session storage");
+
+            // Update the UI
+            document.getElementById("profile-photo").src = "";
+            document.getElementById('user-score').textContent = "";
+            document.getElementById("profile-container").style.display = "none";
+            document.getElementById('user-card').style.display = "none"
+            document.getElementById("g_id_signin").style.display = "block";
         }
 
         // JavaScript to handle the button click event
@@ -118,6 +145,10 @@
         document.getElementById('multGame').addEventListener('click', function() {
             console.log("=============clicked multGame")
             window.location.href = '/multGame';  // Change this URL to the desired page
+        });
+
+        document.getElementById('ranking').addEventListener('click', function() {
+            window.location.href = '/ranking';  // Change this URL to the desired page
         });
 
         function base64UrlDecode(str) {
@@ -163,12 +194,6 @@
             } else {
                 userCard.style.display = 'none';
             }
-        });
-
-        logoutButton.addEventListener('click', () => {
-            // Implement logout functionality here
-            alert('Logging out...');
-            userCard.style.display = 'none';
         });
 
         // Close the card if clicking outside of it

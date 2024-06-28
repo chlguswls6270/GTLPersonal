@@ -57,12 +57,13 @@
                 width: '640',
                 videoId: '<%= id %>', // variable
                 playerVars: {
+                    'cc_load_policy': 1,
+                    'cc_lang_pref': '',
                     'controls': 0,
                     'rel': 0,
                     'showinfo': 0,
                     'modestbranding': 1,
                     'start': Math.floor(startTime), //variable
-                    //'end': endTime //variable
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -73,6 +74,7 @@
         }
 
         function onPlayerReady(event) {
+            
             const playButton = document.getElementById('playButton');
             const pauseButton = document.getElementById('pauseButton');
             const backToQuizButton = document.getElementById('backToQuizButton');
@@ -124,6 +126,8 @@
         }
 
         function onPlayerStateChange(event) {
+            player.unloadModule("captions");  //Works for html5 ignored by AS3
+            player.unloadModule("cc");  //Works for AS3 ignored by html5
             if (event.data == YT.PlayerState.PLAYING) {
                 checkTime = requestAnimationFrame(checkPlayerTime);
             } else {

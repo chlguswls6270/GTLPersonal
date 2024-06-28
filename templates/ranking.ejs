@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranking Page</title>
+    <link rel="stylesheet" href="/css/ranking.css">
+</head>
+<body>
+    <div class="container">
+        <div class="user-info" id="user-info">
+            <img id="profile-picture" src="default-profile.png" alt="Profile Picture">
+            <p id="user-name">User Name</p>
+            <p id="user-score">Score: 0</p>
+            <p id="user-ranking">Rank: 0</p>
+        </div>
+
+        <div class="ranking-container">
+            <div class="ranking-box" id="ranking-box"></div>
+            <div class="pagination-buttons">
+                <button id="prev-button" onclick="prevPage()">Previous</button>
+                <button id="next-button" onclick="nextPage()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/ranking.js"></script>
+</body>
+</html>

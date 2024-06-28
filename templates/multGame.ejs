@@ -67,7 +67,9 @@
                     'rel': 0,
                     'showinfo': 0,
                     'modestbranding': 1,
-                    'start': Math.floor(startTime)
+                    'start': Math.floor(startTime),
+                    'cc_load_policy': 0,
+                    'cc_lang_pref': '',
                 },
                 events: {
                     'onReady': onPlayerReady,
@@ -130,6 +132,8 @@
         }
 
         function onPlayerStateChange(event) {
+            player.unloadModule("captions");  //Works for html5 ignored by AS3
+            player.unloadModule("cc");  //Works for AS3 ignored by html5
             if (event.data == YT.PlayerState.PLAYING) {
                 checkTime = requestAnimationFrame(checkPlayerTime);
             } else {
@@ -163,16 +167,22 @@
             player.playVideo();
         });
 
-        const solutionData = '<%= solution %>';
+        const solutionData ="<%- solution %>";
+
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             const userInput = document.getElementById('inputField').value;
             if (userInput !== solutionData) {
                 console.log("==========got it wrong")
+                console.log("=========correct answer: " + solutionData)
+                console.log("=========user answer: " + (userInput))
+
                 event.preventDefault();
                 document.getElementById('customAlert').style.display = 'block';
             } else {
                 console.log("==========got it right")
+                console.log("=========correct answer: " + solutionData)
+                console.log("=========user answer: " + (userInput))
                 //endGame()
             }
         });
