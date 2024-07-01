@@ -79,6 +79,7 @@
                 <label>Quiz Starts:<input type="text" name="quizStartTime" id="quizStartTime"></label>
                 <label>Quiz Ends: <input type="text" name="quizEndTime" id="quizEndTime"></label>
                 <input type="text" name="youtubeURL" id="youtubeURLForm"/>
+                <input type="text" name="thumbnailURL" id="thumbnailURL"/>
                 <br><br>
                 <label>lyrics</label><br>
                 <textarea rows="2" cols="50" name="lyrics" id="lyrics"></textarea>
@@ -109,6 +110,7 @@
             document.getElementById('whole').style.display = 'block';
             document.getElementById('urlField').style.display = 'none';
             document.getElementById('youtubeURLForm').value = url;
+            document.getElementById('thumbnailURL').value = getThumbnail(youtubeID);
             initializePlayer(youtubeID);
         });
 
@@ -206,6 +208,10 @@
 
             // Return the formatted time string
             return minutes + ':' + formattedSeconds;
+        }
+
+        function getThumbnail(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
         }
     </script>
 </body>

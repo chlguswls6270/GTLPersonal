@@ -1,0 +1,88 @@
+* {
+    font-family: "Gugi", sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: 100vh;
+    background-color: black;
+    color: white;
+    overflow: hidden; /* Prevent body from scrolling */
+}
+
+.songList-left {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    width: 250px; /* Fixed width for the left div */
+    background-color: black; /* Background color for the left div */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.cards-container {
+    flex: 3;
+    overflow-y: auto; /* Enable vertical scrolling */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.cards-container::-webkit-scrollbar {
+    width: 12px; /* Width of the scrollbar */
+}
+
+.cards-container::-webkit-scrollbar-track {
+    background: black; /* Background of the scrollbar track */
+}
+
+.cards-container::-webkit-scrollbar-thumb {
+    background-color: rgb(153, 153, 153); /* Color of the scrollbar thumb */
+    border: 3px solid black; /* Padding around the thumb */
+}
+
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 10px; /* Space between cards */
+}
+
+.songListcard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    padding:10px;
+    padding-bottom: 0px;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: #1B1B1B; /* Background color for the button */
+    border: 2px solid #1B1B1B;
+    color: white;
+    border: none;
+    transition: background-color 0.3s; /* Smooth transition for button hover effect */
+    box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
+    overflow: hidden; /* Ensure content stays within bounds */
+}
+
+.songListcard:hover {
+    background-color: black;
+    border: 2px solid;
+    border-image: linear-gradient(to right, #ff7e5f, #0a4236) 1;
+}
+
+.songListcard-content {
+    font-size: 20px; /* Adjust font size */
+    text-align: center; /* Center the text */
+    white-space: normal; /* Allow sentences to break naturally */
+    word-break: keep-all; /* Prevent words from breaking */
+    overflow-wrap: normal; /* Prevent words from breaking */
+}
+
+img {
+    width: 100%
+}

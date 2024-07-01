@@ -1,49 +1,92 @@
-/*This CSS file will style the main page.*/
-body, html {
-    height: 100%;
+* {
+    font-family: "Gugi", sans-serif;
+}
+
+body {
     margin: 0;
-    font-family: Arial, sans-serif; /* You can choose the font that fits your game's theme */
-    background: #93B7BE;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background-color: black;
+    background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
+}
+
+.title-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    
+    color: white;
+}
+
+.title-container h1 {
+    font-size: 4em;
+    margin: 0;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    box-sizing: border-box;
+    padding: 10px;
+    gap: 10px;
+}
+
+.upper-row {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex: 5;
+    gap: 10px;
+}
+
+.lower-row {
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    flex: 1;
+    gap: 10px;
 }
 
 button {
-    font-size: 30px; /* Larger text makes the button easier to read */
-    padding: 10px 20px; /* Padding around the text */
-    cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
-    background-color: #D4F5F5; /* A nice, game-themed green color for the button */
-    color: D4F5F5;
-    border: none;
-    border-radius: 5px; /* Rounded corners for the button */
-    transition: background-color 0.3s; /* Smooth transition for button hover effect */
-    font-weight: bold;
-    margin: 10px;
-    border: 2px solid #D4F5F5;
+    flex: 1;
+    height: 100%;
+    cursor: pointer;
+    background-color: #1B1B1B;
+    border: 2px solid #1B1B1B;
+    color: white;
+    /* border-radius: 20px; */
+    transition: background-color 0.3s;
+    /* margin: 5px; */
 }
 
-.login_button {
-    font-size: 10px;
+#start {
+    flex: 1;
+    font-size: 3em;
 }
 
+#multGame {
+    flex: 1;
+    font-size: 3em;
+}
+
+#addGame {
+    flex: 2;
+    font-size: 1em;
+}
+
+#ranking {
+    flex: 1;
+    font-size: 1em;
+}
 
 button:hover {
-    background-color: #93B7BE; /* Slightly darker green when hovered */
-    border: 2px solid #D4F5F5;
-}
-
-.centered {
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-
-}
-
-.player {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh; /* Full viewport height */
+    background-color: black;
+    border: 2px solid;
+    border-image: linear-gradient(to right, #ff7e5f, #0a4236) 1;
 }
 
 .profile-container {
@@ -95,3 +138,17 @@ button:hover {
 #logout-button:hover {
     background-color: #c00;
 }
+
+.login-row {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+#custom-signin {
+    display: flex;
+}
+
+
+
+

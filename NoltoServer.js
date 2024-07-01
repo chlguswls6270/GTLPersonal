@@ -90,7 +90,7 @@ app.get("/addGame", (request, response) => {
 });
 
 app.post("/addGame", async (request, response) => {
-    let {startTime, quizStartTime, quizEndTime, youtubeURL, lyrics, artist, title} =  request.body;
+    let {startTime, quizStartTime, quizEndTime, youtubeURL, lyrics, artist, title, thumbnailURL} =  request.body;
 
     //Sending info to mongo db
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
@@ -104,7 +104,9 @@ app.post("/addGame", async (request, response) => {
             lyrics: lyrics,
             artist: artist,
             title: title,
-            youtubeURL: extractYouTubeVideoID(youtubeURL),};
+            youtubeURL: extractYouTubeVideoID(youtubeURL),
+            thumbnailURL: thumbnailURL
+        };
         await insertQuiz(client, databaseAndCollection, quiz);
     } catch (e) {
         console.error(e);

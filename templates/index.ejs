@@ -7,30 +7,28 @@
     <meta name="description" content="Basic HTML5 Document">
     <meta name="keywords" content="HTML5, Responsive">
     <link rel="stylesheet" href="/css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
     <title>NolTo Main</title>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
 </head>
 
 <body>
     <div class="title-container">
-        <h1>GuessTheLyrics</h1>
+        <h1>Guess<br>The<br>Lyrics</h1>
     </div>
     <div class="button-container">
-        <div class="row">
+        <div class="login-row">
+            <div id="custom-signin"></div>
+        </div>
+        <div class="upper-row">
             <button id="start">Start Game</button>
             <button id="multGame">Multiplayer Game</button>
         </div>
-        <div class="row">
+        <div class="lower-row">
             <button id="addGame">Add Game</button>
             <button id="ranking">Ranking</button>
-            <div id="g_id_onload"
-                data-client_id="<%- clientID -%>"
-                data-context="signin"
-                data-ux_mode="popup"
-                data-callback="handleCredentialResponse"
-                data-auto_prompt="false">
-            </div>
-            <div class="g_id_signin" id="g_id_signin" data-type="standard"></div>
         </div>
     </div>
 
@@ -47,9 +45,9 @@
             <button id="logout-button" onclick="logout()">Logout</button>
         </div>
     </div>
-
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script>
+        
         //check if user alrady logged-in
         document.addEventListener('DOMContentLoaded', () => {
             console.log("==========chlguswls")
@@ -87,7 +85,7 @@
                     // console.log('Signature:', decoded.signature);
                     profilePhoto = document.getElementById("profile-photo")
                     profilePhoto.src = decoded.payload.image;
-                    document.getElementById("g_id_signin").style.display = "none"
+                    //document.getElementById("g_id_signin").style.display = "none"
                     document.getElementById("profile-container").style.display = "inline"
                     let user = {
                         image: decoded.payload.image,
@@ -104,8 +102,8 @@
                     document.getElementById('user-name').textContent = decoded.payload.name;
                     //document.getElementById('user-score').textContent = decoded.payload._id.toString();
                     document.getElementById('user-score').textContent = decoded.payload.score;
-                    document.getElementById('user-rank').textContent = "rank: " + info.rank;
-
+                    document.getElementById('user-rank').textContent = "rank: " + decoded.payload.rank;
+                    document.getElementById('custom-signin').style.visibility = 'hidden'
                 } catch (error) {
                     console.error('Error decoding JWT:', error);
                 }
@@ -113,8 +111,21 @@
             })
             .catch(error => {
                 console.error('Error during authentication:', error);
-            }); 
+            });
         }
+
+        window.onload = function() {
+            google.accounts.id.initialize({
+                client_id: '<%- clientID -%>',
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById('custom-signin'),
+                { theme: 'filled_black', size: 'large', text: 'Log In with Google' } // customization of the button
+            );
+
+        };
 
         async function logout() {
             // Clear sessionStorage
@@ -130,7 +141,8 @@
             document.getElementById('user-score').textContent = "";
             document.getElementById("profile-container").style.display = "none";
             document.getElementById('user-card').style.display = "none"
-            document.getElementById("g_id_signin").style.display = "block";
+            document.getElementById('custom-signin').style.visibility = 'visible'
+            //document.getElementById("g_id_signin").style.display = "block";
         }
 
         // JavaScript to handle the button click event

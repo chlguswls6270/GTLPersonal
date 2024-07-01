@@ -3,58 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Card Grid</title>
-    <link rel="stylesheet" href="/css/styles.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        .grid-container {
-            display: flex;
-            flex-wrap: wrap;
-            flex-direction: row;
-            /* justify-content: center; */
-            padding: 20px;
-            width: 100%;
-        }
-
-        .songListcard {
-            font-size: 30px; /* Larger text makes the button easier to read */
-            padding: 10px 20px; /* Padding around the text */
-            cursor: pointer; /* Changes the mouse cursor to a pointer when hovered over the button */
-            background-color: #D4F5F5; /* A nice, game-themed green color for the button */
-            color: black;
-            border: none;
-            border-radius: 5px; /* Rounded corners for the button */
-            transition: background-color 0.3s; /* Smooth transition for button hover effect */
-            font-weight: bold;
-            margin: 10px;
-            border: 2px solid #D4F5F5;
-            
-        }
-
-        .songListcard:hover {
-            background-color: #93B7BE; /* Slightly darker green when hovered */
-            border: 2px solid #D4F5F5;
-        }
-
-        
-    </style>
+    <title>Song List</title>
+    <link rel="stylesheet" href="/css/songList.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+    <!-- Include Masonry library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/masonry/4.2.2/masonry.pkgd.min.js"></script>
 </head>
 <body>
-    <div class="centered">
-        <div class="grid-container">
+    <div class="songList-left">
+        <h1>Song<br>List</h1>
+    </div>
+    <div class="cards-container">
+        <div class="cards">
             <% songArray.forEach(function(song) { %>
                 <div class="songListcard" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
-                    <%= song.title %>
-                    <br><br>
-                    <%= song.artist %>
+                    <div class="songListcard-content">
+                        <%= song.title %>
+                        <br><br>
+                        <%= song.artist %>
+                        <br><br>
+                        <img src="<%= song.thumbnailURL %>" alt="thumbnail" class="thumbnail">
+                    </div>
                 </div>
             <% }); %>
         </div>
@@ -66,6 +35,17 @@
             const match = url.match(regex);
             return match ? match[1] : null;
         }
+    </script>
+    <script>
+        // document.addEventListener('DOMContentLoaded', function () {
+        //     var elem = document.querySelector('.cards');
+        //     var msnry = new Masonry(elem, {
+        //         // options
+        //         itemSelector: '.songListcard',
+        //         columnWidth: '.songListcard',
+        //         percentPosition: true
+        //     });
+        // });
     </script>
 </body>
 </html>
