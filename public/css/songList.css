@@ -76,7 +76,7 @@ body {
 }
 
 .songListcard-content {
-    font-size: 20px; /* Adjust font size */
+    font-size: 1.2em; /* Adjust font size */
     text-align: center; /* Center the text */
     white-space: normal; /* Allow sentences to break naturally */
     word-break: keep-all; /* Prevent words from breaking */
