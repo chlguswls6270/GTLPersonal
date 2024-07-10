@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+
+    <title>multPrivateGame</title>
+    <style>
+        * {
+            color: white;
+        }
+        body {
+            flex-direction: row;
+        }
+        button{
+            font-size: 3em;
+        }
+    </style>
+</head>
+<body>
+    <button id="multPrivateGameMakeRoom">make room</button>
+    <button id="multPrivateJoinRoom">join room</button>
+    <input type="text" id="room">
+</body>
+<script>
+    document.getElementById('multPrivateGameMakeRoom').addEventListener('click', function() {
+        window.location.href = '/multPrivateGameMakeRoom';  // Change this URL to the desired page
+    });
+
+    document.getElementById('multPrivateJoinRoom').addEventListener('click', function() {
+        const room = document.getElementById("room").value
+        window.location.href = '/multPrivateJoinRoom/' + room;  // Change this URL to the desired page
+    });
+</script>
+</html>

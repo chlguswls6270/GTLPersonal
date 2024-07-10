@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
     const room = window.location.pathname.split('/')[2];
     console.log("room number game.js: " + room);
-    const ws = new WebSocket(`ws://${location.host}/single-public?room=${room}`);
+    const ws = new WebSocket(`ws://${location.host}/mult-private-play?room=${room}`);
     console.log("====chlguswls");
     const form = document.getElementById('userForm');
     const input = document.getElementById('inputField');
@@ -14,35 +14,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (data.type === 'start') {
                 console.log("starting the game");
                 startGame();
-            } else if (data.type === 'end') {
-                if (data.message === 'you lost!') {
-                    console.log("game ended. redirecting to result page")
-                    window.location.href = '/multResult/lost/' + data.score
-                } else if (data.message === 'you won!') {
-                    console.log("game ended. redirecting to result page")
-                    window.location.href = '/multResult/won/' + data.score
-                }
-                let info = sessionStorage.getItem("userInfo");
-                info = JSON.parse(info)
-                if (info != null) {
-                    updateSessionStorage(data.score);
-                    updateScoreMongoDB(data.score);
-                }
-                
-            }
-        } else if (typeof event.data === 'string') {
-            const message = document.createElement('div');
-            const new_text = document.createTextNode(event.data)
-            message.appendChild(new_text);
-            messages.appendChild(message)
-        } else {
-            const blob = event.data;
-            blob.text().then(text => {
+            } else if (data.type === 'regular') {
                 const message = document.createElement('div');
-                const new_text = document.createTextNode(text)
+                const new_text = document.createTextNode(data.message);
                 message.appendChild(new_text);
-                messages.appendChild(message)
-            })
+                messages.appendChild(message);
+            } else if (data.type === 'end') {
+                //logic for ending the game
+                const message = document.createElement('div');
+                const new_text = document.createTextNode('lobby disappeared!!');
+                message.appendChild(new_text);
+                messages.appendChild(message);
+            }
+            // else if (data.type === 'end') {
+            //     if (data.message === 'you lost!') {
+            //         console.log("game ended. redirecting to result page")
+            //         window.location.href = '/multResult/lost/' + data.score
+            //     } else if (data.message === 'you won!') {
+            //         console.log("game ended. redirecting to result page")
+            //         window.location.href = '/multResult/won/' + data.score
+            //     }
+            // }
         }
     };
 
@@ -53,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
             } else {
-                ws.send(input.value);
+                ws.send(JSON.stringify({ type: 'regular', message: input.value }));
             }
         }
     };
@@ -64,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gameDidNotStart').style.display = 'none';
         playRequested = true;
         player.playVideo();
-        console.log("music played!");
+        
     }
 
     function isValidJSON(str) {

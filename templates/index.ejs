@@ -19,13 +19,13 @@
         <h1>Guess<br>The<br>Lyrics</h1>
     </div>
     <div class="button-container">
-        <div class="login-row">
+        <div class="login-row" id="login-row">
             <div id="custom-signin"></div>
         </div>
         <div class="upper-row">
             <button id="start">Start Game</button>
             <button id="multGame">Single-Online Game</button>
-            <button id="multGame">Private-Multi Game</button>
+            <button id="multPrivateGame">Private-Multi Game</button>
         </div>
         <div class="lower-row">
             <button id="addGame">Add Game</button>
@@ -58,7 +58,7 @@
             if (info != null) {
                 console.log("===========already logged-in to google.")
                 profilePhoto = document.getElementById("profile-photo")
-                document.getElementById("g_id_signin").style.display = "none"
+                document.getElementById("login-row").style.display = "none"
                 document.getElementById("profile-container").style.display = "inline"
                 profilePhoto.src = info.image;
                 document.getElementById('user-name').textContent = info.name;
@@ -157,6 +157,11 @@
         document.getElementById('multGame').addEventListener('click', function() {
             console.log("=============clicked multGame")
             window.location.href = '/multGame';  // Change this URL to the desired page
+        });
+
+        document.getElementById('multPrivateGame').addEventListener('click', function() {
+            console.log("=============clicked multGame")
+            window.location.href = '/multPrivateGame';  // Change this URL to the desired page
         });
 
         document.getElementById('ranking').addEventListener('click', function() {

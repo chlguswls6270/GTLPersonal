@@ -9,6 +9,7 @@ body {
     flex-direction: column;
     height: 100vh;
     background-color: black;
+    color:white;
     background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
 }
 
@@ -69,6 +70,11 @@ button {
 }
 
 #multGame {
+    flex: 1;
+    font-size: 3em;
+}
+
+#multPrivateGame {
     flex: 1;
     font-size: 3em;
 }

@@ -212,7 +212,8 @@ app.get('/multGame', async (req, res) => {
         }
         
         //get random song from the db and store its info in roomMap.
-        let randSong = await getRandomDocument();
+        let randSongArray = await getRandomDocument(1);
+        let randSong = randSongArray[0];
         console.log("========randSong: " + randSong)
         console.log("======randSong ID: " + randSong._id)
         let pickedSongID = randSong._id.toString();
@@ -235,7 +236,7 @@ app.get('/multGame', async (req, res) => {
     res.redirect("/multGame/" + roomNumber)
 });
 
-async function getRandomDocument() {
+async function getRandomDocument(num) {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
     try {
@@ -244,11 +245,11 @@ async function getRandomDocument() {
         const collection = database.collection(databaseAndCollection.collection); // Replace with your collection name
 
         // Use the $sample stage to get a single random document
-        const randomDocument = await collection.aggregate([{ $sample: { size: 1 } }]).toArray();
+        const randomDocument = await collection.aggregate([{ $sample: { size: num } }]).toArray();
 
         if (randomDocument.length > 0) {
             console.log('Random Document:', randomDocument[0]);
-            return randomDocument[0];
+            return randomDocument;
         } else {
             console.log('No documents found in the collection.');
             return null;
@@ -333,8 +334,93 @@ app.post("/get-ranking", async (req, res) => {
     }
 });
 
+app.get("/multPrivateGame", (req, res) => {
+    const variables = {};
+    res.render("multPrivateGame", variables)
+});
 
+app.get('/multPrivateGameMakeRoom', async (req, res) => {
+    console.log("===========making new private mult game room==========");
+    //make a new room number
+    roomNumber = generateRandomString(8);
+    while (privateRoomMap.has(roomNumber)) {
+        roomNumber = generateRandomString(8);
+    }
+    
+    //get random song from the db and store its info in roomMap.
+    let randSongArray = await getRandomDocument(5);
+    //NEED TO FIX THIS FOR RANDSONG
+    console.log("========randSong: " + randSong)
+    console.log("======randSong ID: " + randSong._id)
+    //let pickedSongID = randSong._id.toString();
+    let songInfoArray = [];
 
+    let songInfo = {
+        startTime: parseFloat(randSong.startTime),
+        quizStart: parseFloat(randSong.quizStartTime),
+        quizEnd: parseFloat(randSong.quizEndTime),
+        youtubeURL: randSong.youtubeURL,
+        solution: randSong.lyrics,
+        title: randSong.title
+    }
+    
+    console.log("============length of songArray: " + songArray.length);
+    console.log("============picked ObjID: " + pickedSongID);
+    console.log("============adding room: " + roomNumber);
+    //roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
+    privateRoomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null, songInfo: songInfo, lobby: null, currPlayer: 0});
+    res.redirect("/multGameLobby/" + roomNumber)
+});
+
+app.get('/multGameLobby/:room', (req, res) => {
+    //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
+    let room = req.params.room;
+    let roomInfo = privateRoomMap.get(room);
+    // let objID = roomInfo.songID;
+    
+    // const startTime = roomInfo.songInfo.startTime;
+    // const quizStart = roomInfo.songInfo.quizStart;
+    // const quizEnd = roomInfo.songInfo.quizEnd;
+    const variables = {
+        // id: roomInfo.songInfo.youtubeURL,
+        // startTime: startTime,
+        // quizStartTime: quizStart,
+        // quizEndTime: quizEnd,
+        portNumber: portNumber,
+        // objID: objID,
+        // solution: roomInfo.songInfo.solution,
+        songName: roomInfo.songInfo.title,
+        room: room,
+    };
+    console.log("===============songname: " + variables.songName);
+
+    console.log("=============solution in server: " + roomInfo.songInfo.solution)
+
+    res.render('multGameLobby', variables);
+});
+
+app.get('/multPrivateJoinRoom/:room', (req, res) => {
+    //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
+    let room = req.params.room;
+    let roomInfo = privateRoomMap.get(room);
+    let objID = roomInfo.songID;
+    
+    const startTime = roomInfo.songInfo.startTime;
+    const quizStart = roomInfo.songInfo.quizStart;
+    const quizEnd = roomInfo.songInfo.quizEnd;
+    const variables = {
+        id: roomInfo.songInfo.youtubeURL,
+        startTime: startTime,
+        quizStartTime: quizStart,
+        quizEndTime: quizEnd,
+        portNumber: portNumber,
+        objID: objID,
+        solution: roomInfo.songInfo.solution,
+    };
+    console.log("=============solution in server: " + roomInfo.songInfo.solution)
+
+    res.render('multPrivateGamePlay', variables);
+});
 
 // =======================
 
@@ -363,6 +449,7 @@ async function updateScore(client, databaseAndCollection, objID, score) {
 
 //======================= Websocket Server code
 const roomMap = new Map();
+const privateRoomMap = new Map();
 let num_max_user = 3
 
 // Adding the exclude method to Set prototype
@@ -371,9 +458,27 @@ Set.prototype.exclude = function(element) {
 };
 
 wss.on('connection', (ws, req) => {
-    console.log("New WebSocket connection established");
-    console.log("========url: " + req.url)
-    const room = new URLSearchParams(req.url.substring(1)).get('room');
+    const parsedUrl = new URL(req.url, `http://${req.headers.host}`);
+    const pathname = parsedUrl.pathname;
+    const room = parsedUrl.searchParams.get('room');
+    console.log("==============pathname: " + pathname);
+    if (pathname === '/single-public') {
+        console.log("gooooood!");
+        console.log("========url: " + req.url)
+        handleSinglePublic(ws, room);
+    } else if (pathname === "/mult-private-lobby") {
+        handleMultPrivateLobby(ws, room)
+    } else if (pathname === '/mult-private-play') {
+        handleMultPrivatePlay(ws, room);
+    } else {
+        ws.close(1000, 'Invalid URL path');
+    }
+});
+
+function handleSinglePublic(ws, room) {
+    // console.log("New WebSocket connection established");
+    // console.log("========url: " + req.url)
+    // const room = new URLSearchParams(req.url.substring(1)).get('room');
     // if (!roomMap.has(room)) {
     //     roomMap.set(room, new Set());
     // }
@@ -381,7 +486,7 @@ wss.on('connection', (ws, req) => {
     if (!roomMap.has(room) || roomMap.get(room).clients.size > num_max_user || roomMap.get(room).started) {
         console.log("room does not exists: " + !roomMap.has(room))
         console.log("room capacity greater than max" + roomMap.get(room).clients.size > num_max_user)
-        console.log("room has started: " + oomMap.get(room).started)
+        console.log("room has started: " + roomMap.get(room).started)
         console.log("tried to enter a invalid room: does not exist, already started.")
         ws.close();
         return;
@@ -461,7 +566,89 @@ wss.on('connection', (ws, req) => {
             }
         }
     });
-});
+}
+
+function handleMultPrivateLobby(ws, room) {
+    const roomData = privateRoomMap.get(room);
+    roomData.lobby = ws;  // Add the client to the room's set
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        if (data.type === 'start') {
+            console.log("============start message received.")
+            //send start messages to all users in room
+            const clients = roomData.clients;
+            if (clients) {
+                clients.forEach(client => {
+                    if (client.ws.readyState === WebSocket.OPEN) {
+                        console.log("===========start message sent")
+                        client.ws.send(JSON.stringify({ type: 'start', message: "start the game!" }));
+                    }
+                });
+            }
+        }
+    });
+
+    ws.on('close', () => {
+        const clients = privateRoomMap.get(room).clients;
+        if (clients) {
+            clients.forEach(client => {
+                if (client.ws.readyState === WebSocket.OPEN) {
+                    console.log("===========user sent message")
+                    client.ws.send(JSON.stringify({ type: 'end', message: "lobby disappeared!!!" }));
+                }
+            });
+        }
+        
+        console.log("========deleting a room: " + room)
+        privateRoomMap.delete(room); // Optionally clean up empty room
+    });
+}
+
+function handleMultPrivatePlay(ws, room) {
+    const roomData = privateRoomMap.get(room);
+    roomData.clients.add({ws: ws, idx: roomData.currPlayer});  // Add the client to the room's set
+    roomData.lobby.send(JSON.stringify({ type: 'new-user', message: `${roomData.currPlayer + 1}P` }))
+    roomData.currPlayer = roomData.currPlayer + 1;
+
+    ws.on('message', (message) => {
+        const data = JSON.parse(message);
+        const clients = privateRoomMap.get(room).clients;
+        if (data.type === 'regular') {
+            if (clients) {
+                clients.forEach(client => {
+                    if (client.ws.readyState === WebSocket.OPEN) {
+                        console.log("===========user sent message")
+                        client.ws.send(JSON.stringify({ type: 'regular', message: data.message }));
+                    }
+                });
+            }
+        }
+    });
+
+    ws.on('close', () => {
+        //need to change lobby for user list.
+        //close an player.
+        // Remove the client from the room on disconnect
+        console.log("============ws close detected");
+        if (privateRoomMap.get(room) !== undefined) {
+            console.log("=========deleting a user in private mult");
+            const clients = privateRoomMap.get(room)?.clients;
+            const user = findInSet(elem => elem.ws == ws, clients);
+            console.log("clients that should have client I'm deleting: " + clients)
+            console.log("private mult deleting user information: " + user);
+            clients.delete(user); //NOT SURE IF THIS IS RIGHT WAY TO DO IT
+            privateRoomMap.get(room)?.lobby.send(JSON.stringify({ type: 'user-left', message: "a user left the room!", idx: user.idx}));
+            // if (privateRoomMap.get(room).clients.size === 0) {
+            //     console.log("========deleting a room: " + room)
+            //     privateRoomMap.delete(room); // Optionally clean up empty room
+            // }
+        }
+    });
+}
+
+function findInSet (pred, set) { 
+    for (let item of set) if(pred(item)) return item;
+}
 
 //======================= google login handling code
 const { OAuth2Client } = require('google-auth-library');
