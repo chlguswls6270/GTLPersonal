@@ -2,26 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/multPrivateGame.css">
     <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
 
     <title>multPrivateGame</title>
-    <style>
-        * {
-            color: white;
-        }
-        body {
-            flex-direction: row;
-        }
-        button{
-            font-size: 3em;
-        }
-    </style>
 </head>
 <body>
-    <button id="multPrivateGameMakeRoom">make room</button>
-    <button id="multPrivateJoinRoom">join room</button>
-    <input type="text" id="room">
+    <div id="container">
+        <button id="multPrivateGameMakeRoom">make room</button>
+        <button id="multPrivateJoinRoom">join room</button>
+        <input type="text" id="room">
+    </div>
 </body>
 <script>
     document.getElementById('multPrivateGameMakeRoom').addEventListener('click', function() {

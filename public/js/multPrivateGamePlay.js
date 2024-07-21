@@ -7,7 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('userForm');
     const input = document.getElementById('inputField');
     const messages = document.getElementById('chat-log');
-
+    let index = -1;
+    let maxRound = songInfoArray.length;
+    console.log("maxRound: " + maxRound);
+    console.log(songInfoArray);
     ws.onmessage = (event) => {
         if (isValidJSON(event.data)) {
             const data = JSON.parse(event.data);
@@ -19,31 +22,89 @@ document.addEventListener('DOMContentLoaded', () => {
                 const new_text = document.createTextNode(data.message);
                 message.appendChild(new_text);
                 messages.appendChild(message);
-            } else if (data.type === 'end') {
+            } else if (data.type === 'lobby-exit') {
                 //logic for ending the game
                 const message = document.createElement('div');
                 const new_text = document.createTextNode('lobby disappeared!!');
                 message.appendChild(new_text);
                 messages.appendChild(message);
+            } else if (data.type === 'index') {
+                index = data.idx
+                const message = document.createElement('div');
+                const new_text = document.createTextNode(`I'm ${index}P!!`);
+                message.appendChild(new_text);
+                messages.appendChild(message);
+            } else if(data.type === 'continue') {
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('inputField').value = '';
+
+                if (player && player.pauseVideo) {
+                    player.pauseVideo();
+                }
+                console.log("continuing to next round")
+                console.log("startTime before: " + startTime)
+                const new_round = data.currRound; 
+                startTime = songInfoArray[new_round - 1].startTime;
+                quizStartTime = songInfoArray[new_round - 1].quizStart;
+                quizEndTime =songInfoArray[new_round - 1].quizEnd;
+                quizStarted = false;
+                quizSubmitted = false;
+                playRequested = false;
+
+                solutionData = songInfoArray[new_round - 1].solution;
+
+                // Check if a player instance already exists
+                if (player && player.destroy) {
+                    player.destroy();
+                }
+                //continue to next game
+                player = new YT.Player('player', {
+                    height: '390',
+                    width: '640',
+                    videoId: songInfoArray[new_round - 1].youtubeURL,
+                    playerVars: {
+                        'controls': 0,
+                        'rel': 0,
+                        'showinfo': 0,
+                        'modestbranding': 1,
+                        'start': Math.floor(startTime),
+                        'cc_load_policy': 0,
+                        'cc_lang_pref': '',
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+                console.log("startTime after: " + startTime)
+                console.log("should be updated!")
+                // Ensure the video plays after the player is ready
+                player.addEventListener('onReady', function(event) {
+                    event.target.playVideo();
+                });
+            } else if (data.type === 'end') {
+                const message = document.createElement('div');
+                const rank = getUserRank(data.users, index)
+                const new_text = document.createTextNode(`lobby said game ended!! winner is ${data.winner}. my place is ${rank}`);
+                message.appendChild(new_text);
+                messages.appendChild(message);
+
+                //redirect to the next game.
+                if (rank == 1) {
+                    window.location.href = `/multPrivateResult/won/${index}/${rank}`
+                } else {
+                    window.location.href = `/multPrivateResult/lost/${data.winner}/${rank}`
+                }
             }
-            // else if (data.type === 'end') {
-            //     if (data.message === 'you lost!') {
-            //         console.log("game ended. redirecting to result page")
-            //         window.location.href = '/multResult/lost/' + data.score
-            //     } else if (data.message === 'you won!') {
-            //         console.log("game ended. redirecting to result page")
-            //         window.location.href = '/multResult/won/' + data.score
-            //     }
-            // }
         }
     };
 
     form.onsubmit = event => {
         event.preventDefault();
         if (input.value) {
-            if (input.value === solutionData) {
+            if (input.value === solutionData) { //game not ended yet. need to continue to next round.
                 console.log("=======user got it right!")
-                ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
+                ws.send(JSON.stringify({ type: 'correct', winner: index }));
             } else {
                 ws.send(JSON.stringify({ type: 'regular', message: input.value }));
             }
@@ -68,41 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    function updateSessionStorage(scoreChange) {
-        let user = sessionStorage.getItem("userInfo")
-        user = JSON.parse(user)
-        user.score = user.score + scoreChange;
-        console.log("=====info: " + user)
-        if (user != null) {
-            console.log("a piece of information in info: " + user.name)
-        }
-        sessionStorage.setItem("userInfo", JSON.stringify(user))
-    }
-
-    async function updateScoreMongoDB(scoreChange) {
-        let user = sessionStorage.getItem("userInfo");
-        user = JSON.parse(user)
-        let id = user.obj
-        console.log("id in multGame.js: " + id)
-        console.log("score in multGame.js: " + scoreChange)
-        try {
-            const response = await fetch('/update-score', {
-                method: 'POST',
-                headers: {
-                    'Content-Type' : 'application/json',
-                },
-                body: JSON.stringify({ id: id, scoreChange: scoreChange})
-            });
-            const data = await response.json();
-            if (response.ok) {
-                console.log(data.message);
-            } else {
-                console.error('Error:', data.message);
-            }
-            
-        } catch (error) {
-            console.error('Error:', error);
-        }
+    function getUserRank(usersArray, userName) {
+        // Sort the array based on the values in descending order
+        usersArray.sort((a, b) => b[1] - a[1]);
+    
+        // Find the position of the given user
+        const rank = usersArray.findIndex(user => user[0] === userName) + 1;
+    
+        return rank;
     }
 
 });

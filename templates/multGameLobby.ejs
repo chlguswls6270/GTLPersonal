@@ -4,22 +4,72 @@
 
 <head>
 	<meta charset="utf-8" />
-	<link rel="stylesheet" href="/css/styles.css">
+	<link rel="stylesheet" href="/css/lobby.css">
 	<title>Order Confirmation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+
 </head>
 
 <body>
-	<div>
-		<strong>room:<br></strong><%- room %><br>
-		<strong>title:<br></strong><%- songName %><br>
-        <button id="start">start</button>
+	<div id="container">
+        <div id="room-name">
+		    <h1>Room Number: <%- room %></h1>
+            <p>Enter this code to join room. </p>
+            <p>Do not close this window.</p>
+        </div>
+        <div id="song-info">
+            <div id="song-list">
+                <% songInfoArray.forEach(function(songInfo) {%>
+                    <div id="songTitles">
+                        <strong><%= songInfo.title %></strong>
+                    </div>
+                <% }); %>
+            </div>
+            <div id="song-buttons">
+                <input type="number" id="numSong" name="numSong" value="5" step="1" min="1" max="10">
+                <button id="refreshSong">refresh</button>
+            </div>
+        </div>
+        <div id="start-game">
+            <button id="start">start</button>
+        </div>
+        <!-- <table id="users">
+            <thead>
+                <tr>
+                    <th>user</th>
+                    <th>score</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table> -->
         <div id="users"></div>
-        <hr>
-        <a href="http://localhost:<%- portNumber %>">Home</a>
+        <div id="result-table">
+            <table id="resultTable">
+                <thead>
+                    <tr>
+                        <th>rank</th>
+                        <th>user</th>
+                        <th>score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+        <!-- <div>
+            <p id="winnerAlert"></p>
+        </div> -->
+        <div id="home-button">
+            <button id="homeButton">Home</button>
+        </div>
 	</div>
     <script src="/js/multPrivateGameLobby.js"></script>
     <script>
-        
+        // Handle Go Back to Home button click
+        document.getElementById('homeButton').addEventListener('click', function() {
+            window.location.href = 'http://localhost:<%- portNumber %>'; // Redirect to home page
+        });
     </script>
 </body>
 

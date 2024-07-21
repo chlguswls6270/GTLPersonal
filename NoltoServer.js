@@ -348,27 +348,39 @@ app.get('/multPrivateGameMakeRoom', async (req, res) => {
     }
     
     //get random song from the db and store its info in roomMap.
-    let randSongArray = await getRandomDocument(5);
+    let randSongArray = await getRandomDocument(1);
     //NEED TO FIX THIS FOR RANDSONG
+    let randSong = randSongArray[0];
     console.log("========randSong: " + randSong)
     console.log("======randSong ID: " + randSong._id)
     //let pickedSongID = randSong._id.toString();
     let songInfoArray = [];
 
-    let songInfo = {
-        startTime: parseFloat(randSong.startTime),
-        quizStart: parseFloat(randSong.quizStartTime),
-        quizEnd: parseFloat(randSong.quizEndTime),
-        youtubeURL: randSong.youtubeURL,
-        solution: randSong.lyrics,
-        title: randSong.title
-    }
+    randSongArray.forEach(elem => {
+        songInfoArray.push({
+            startTime: parseFloat(elem.startTime),
+            quizStart: parseFloat(elem.quizStartTime),
+            quizEnd: parseFloat(elem.quizEndTime),
+            youtubeURL: elem.youtubeURL,
+            solution: elem.lyrics,
+            title: elem.title
+        });
+    });
+
+    // let songInfo = {
+    //     startTime: parseFloat(randSong.startTime),
+    //     quizStart: parseFloat(randSong.quizStartTime),
+    //     quizEnd: parseFloat(randSong.quizEndTime),
+    //     youtubeURL: randSong.youtubeURL,
+    //     solution: randSong.lyrics,
+    //     title: randSong.title
+    // }
     
     console.log("============length of songArray: " + songArray.length);
-    console.log("============picked ObjID: " + pickedSongID);
+    //console.log("============picked ObjID: " + pickedSongID);
     console.log("============adding room: " + roomNumber);
     //roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
-    privateRoomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null, songInfo: songInfo, lobby: null, currPlayer: 0});
+    privateRoomMap.set(roomNumber, { clients: new Set(), started: false, startTime: Date.now(), timer: null, songInfoArray: songInfoArray, lobby: null, currPlayer: 1, currRound: 1});
     res.redirect("/multGameLobby/" + roomNumber)
 });
 
@@ -389,12 +401,12 @@ app.get('/multGameLobby/:room', (req, res) => {
         portNumber: portNumber,
         // objID: objID,
         // solution: roomInfo.songInfo.solution,
-        songName: roomInfo.songInfo.title,
+        songInfoArray: roomInfo.songInfoArray,
         room: room,
     };
     console.log("===============songname: " + variables.songName);
 
-    console.log("=============solution in server: " + roomInfo.songInfo.solution)
+    // console.log("=============solution in server: " + roomInfo.songInfo.solution)
 
     res.render('multGameLobby', variables);
 });
@@ -403,23 +415,53 @@ app.get('/multPrivateJoinRoom/:room', (req, res) => {
     //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = privateRoomMap.get(room);
-    let objID = roomInfo.songID;
+    // let objID = roomInfo.songID;
     
-    const startTime = roomInfo.songInfo.startTime;
-    const quizStart = roomInfo.songInfo.quizStart;
-    const quizEnd = roomInfo.songInfo.quizEnd;
+    // const startTime = roomInfo.songInfo.startTime;
+    // const quizStart = roomInfo.songInfo.quizStart;
+    // const quizEnd = roomInfo.songInfo.quizEnd;
     const variables = {
-        id: roomInfo.songInfo.youtubeURL,
-        startTime: startTime,
-        quizStartTime: quizStart,
-        quizEndTime: quizEnd,
+        // id: roomInfo.songInfo.youtubeURL,
+        // startTime: startTime,
+        // quizStartTime: quizStart,
+        // quizEndTime: quizEnd,
         portNumber: portNumber,
-        objID: objID,
-        solution: roomInfo.songInfo.solution,
+        songInfoArray: roomInfo.songInfoArray,
+        // // objID: objID,
+        // solution: roomInfo.songInfo.solution,
     };
-    console.log("=============solution in server: " + roomInfo.songInfo.solution)
+
+    // console.log("=============solution in server: " + roomInfo.songInfo.solution)
 
     res.render('multPrivateGamePlay', variables);
+});
+
+app.get('/multPrivateResult/:result/:winner/:rank', (req, res) => {
+    const result = req.params.result;
+    const winner = req.params.winner;
+    if (result === 'won') {
+        const variables = {
+            portNumber: portNumber
+        }
+        res.render('multPrivateResultWon', variables);
+    } else if (result === 'lost') {
+        const rank = req.params.rank;
+        const variables = {
+            rank: rank,
+            portNumber: portNumber,
+            winner: winner,
+        }
+        res.render('multPrivateResultLost', variables)
+    }
+});
+
+app.get('/multPrivateGame/podium/:users', (req, res) => {
+    let users = req.params.users;
+    console.log("========users obj in server.");
+    const variables = {
+        users: users,
+    }
+    res.render('podium', variables)
 });
 
 // =======================
@@ -585,6 +627,14 @@ function handleMultPrivateLobby(ws, room) {
                     }
                 });
             }
+        } else if (data.type === 'end') {
+            const clients = roomData.clients;
+            if (clients) {
+                clients.forEach(client => {
+                    console.log("===========end message sent from lobby to plays.")
+                    client.ws.send(JSON.stringify({type: 'end', winner: data.winner, users: data.users}))
+                });
+            }
         }
     });
 
@@ -594,7 +644,7 @@ function handleMultPrivateLobby(ws, room) {
             clients.forEach(client => {
                 if (client.ws.readyState === WebSocket.OPEN) {
                     console.log("===========user sent message")
-                    client.ws.send(JSON.stringify({ type: 'end', message: "lobby disappeared!!!" }));
+                    client.ws.send(JSON.stringify({ type: 'lobby-exit', message: "lobby disappeared!!!" }));
                 }
             });
         }
@@ -607,7 +657,8 @@ function handleMultPrivateLobby(ws, room) {
 function handleMultPrivatePlay(ws, room) {
     const roomData = privateRoomMap.get(room);
     roomData.clients.add({ws: ws, idx: roomData.currPlayer});  // Add the client to the room's set
-    roomData.lobby.send(JSON.stringify({ type: 'new-user', message: `${roomData.currPlayer + 1}P` }))
+    roomData.lobby.send(JSON.stringify({ type: 'new-user', idx: roomData.currPlayer }))
+    ws.send(JSON.stringify({ type: 'index', idx: roomData.currPlayer}))
     roomData.currPlayer = roomData.currPlayer + 1;
 
     ws.on('message', (message) => {
@@ -621,6 +672,28 @@ function handleMultPrivatePlay(ws, room) {
                         client.ws.send(JSON.stringify({ type: 'regular', message: data.message }));
                     }
                 });
+            }
+        } else if (data.type === 'correct') {
+            console.log("=========roomData.currRound: " + roomData.currRound)
+            console.log("=========num of rounds: " + roomData.songInfoArray.length)
+            if (roomData.currRound < roomData.songInfoArray.length) {
+                //continue to next game
+                roomData.currRound += 1;
+                console.log("continuing to the next round!")
+                roomData.lobby.send(JSON.stringify({ type: 'continue', winner: data.winner}))
+                if (clients) {
+                    clients.forEach(client => {
+                        if (client.ws.readyState === WebSocket.OPEN) {
+                            console.log("===========sending signals to users so they can update")
+                            client.ws.send(JSON.stringify({ type: 'continue', winner: data.winner, currRound: roomData.currRound }));
+                        }
+                    });
+                }
+                //SEND CLINETS SIGNALS SO THEY CAN UPDATE TO NEXT SONG!!!!
+            } else if (roomData.currRound >= roomData.songInfoArray.length) {
+                roomData.lobby.send(JSON.stringify({ type: 'last-winner', winner: data.winner}))
+                console.log("need to end game!!")
+                //end game. calculate points, and display who is the winner.
             }
         }
     });
