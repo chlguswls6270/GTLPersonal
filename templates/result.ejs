@@ -3,11 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+
     <title>game page</title>
+    <style>
+        * {
+            font-family: "Gugi", sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            color:white;
+            background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
+        }
+        h1 {
+            font-size: 6rem;
+        }
+        #buttons {
+            position: absolute;
+            bottom: 50px;
+            display: flex;
+            flex: row;
+        }
+        button {
+            padding: 10px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #1B1B1B;
+            border: 1px solid white;
+            color: white;
+            border-radius: 5px;
+            transition: 0.3s;
+            font-size: 1em;
+            z-index: 2;
+        }
+
+        button:hover {
+            background-color: white;
+            color: black;
+        }
+        #tsparticles {
+            position: fixed; /* Use fixed to keep it in the background */
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1; /* Ensures the particles are behind other content */
+        }
+        canvas {
+            z-index: 100;
+        }
+    </style>
 </head>
 <body>
-    <p><%- result -%></p>
-    <a href="http://localhost:<%- portNumber %>">Home</a>
-    <a href="http://localhost:<%- portNumber %>/songList">go to songList</a>
+    <div id="tsparticles"></div>
+    <h1>YOU GOT IT!</h1>
+    <div id="buttons">
+        <button id="home">Home</button>
+        <button id="songList">Song List</button>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/@tsparticles/preset-confetti@3.0.2/tsparticles.preset.confetti.bundle.min.js"></script>
+    <script type="text/javascript">
+        console.log("hahahahahah");
+        (async () => {
+            await tsParticles.load({
+                id: "tsparticles",
+                options: {
+                    emitters: [
+                        {
+                            life: {
+                                duration: 0,
+                                count: 1,
+                            },
+                            position: {
+                                x: 70,
+                                y: 50,
+                            },
+                            particles: {
+                                move: {
+                                    direction: "top-right",
+                                },
+                                speed: { min: 10, max: 50 }, // Adjust the speed range
+                                outModes: {
+                                    default: "out", // Make particles move out of the canvas
+                                },
+                            },
+                            rate: {
+                                delay: 1, // Controls the emission frequency
+                                quantity: 20, // Number of particles emitted at each interval
+                            },
+                        },
+                        {
+                            life: {
+                                duration: 0,
+                                count: 1,
+                            },
+                            position: {
+                                x: 30,
+                                y: 50,
+                            },
+                            particles: {
+                                move: {
+                                    direction: "top-left",
+                                },
+                                speed: { min: 10, max: 50 }, // Adjust the speed range
+                                outModes: {
+                                    default: "out", // Make particles move out of the canvas
+                                },
+                            },
+                            rate: {
+                                delay: 1, // Controls the emission frequency
+                                quantity: 20, // Number of particles emitted at each interval
+                            },
+                        },
+                    ],
+                    preset: "confetti",
+                },
+            });
+        })();
+    </script>
+    <script>
+        document.getElementById('home').addEventListener('click', function() {
+            window.location.href = '/';  
+        });
+        document.getElementById('songList').addEventListener('click', function() {
+            window.location.href = '/songList'; 
+        });
+    </script>
 </body>

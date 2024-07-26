@@ -14,7 +14,7 @@
         <h1>Song<br>List</h1>
     </div>
     <div class="cards-container">
-        <div class="cards">
+        <div class="cards" id="songListCards">
             <% songArray.forEach(function(song) { %>
                 <div class="songListcard" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
                     <div class="songListcard-content">
@@ -27,25 +27,49 @@
                 </div>
             <% }); %>
         </div>
+        <div class="load-more-container">
+            <button id="loadMoreButton">Load More</button>
+        </div>
     </div>
+    <script>
+        let offset = <%= songArray.length %>;
 
-    <script>
-        function extractYouTubeVideoID(url) {
-            const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch\?v=([^&]+)/;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        }
-    </script>
-    <script>
-        // document.addEventListener('DOMContentLoaded', function () {
-        //     var elem = document.querySelector('.cards');
-        //     var msnry = new Masonry(elem, {
-        //         // options
-        //         itemSelector: '.songListcard',
-        //         columnWidth: '.songListcard',
-        //         percentPosition: true
-        //     });
-        // });
+        document.getElementById('loadMoreButton').addEventListener('click', async () => {
+            try {
+                const response = await fetch(`/loadMoreSongs?offset=${offset}`);
+                const newSongs = await response.json();
+
+                if (newSongs.length === 0) {
+                    alert("No more songs to load");
+                    return;
+                }
+
+                const songListCards = document.getElementById('songListCards');
+
+                newSongs.forEach(song => {
+                    const songCard = document.createElement('div');
+                    songCard.classList.add('songListcard');
+                    songCard.setAttribute('onclick', `window.location.href='songList/game/${song.youtubeURL}/${song.startTime}/${song.quizStartTime}/${song.quizEndTime}/${song._id}'`);
+                    
+                    const songContent = document.createElement('div');
+                    songContent.classList.add('songListcard-content');
+                    songContent.innerHTML = `
+                        ${song.title}
+                        <br><br>
+                        ${song.artist}
+                        <br><br>
+                        <img src="${song.thumbnailURL}" alt="thumbnail" class="thumbnail">
+                    `;
+                    
+                    songCard.appendChild(songContent);
+                    songListCards.appendChild(songCard);
+                });
+
+                offset += newSongs.length;
+            } catch (error) {
+                console.error('Error loading more songs:', error);
+            }
+        });
     </script>
 </body>
 </html>

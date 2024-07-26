@@ -19,21 +19,19 @@ button {
     height: 100%;
     cursor: pointer;
     background-color: #1B1B1B;
-    border: 2px solid #1B1B1B;
-    color: white;
-    /* border-radius: 20px; */
     transition: background-color 0.3s;
-    /* margin: 5px; */
     width: 10rem;
     height: 100%;
     font-size: 1rem;
+    color: white;
+    border: 1px solid white;
+    border-radius: 5px;
 }
 
 
 button:hover {
-    background-color: black;
-    border: 2px solid;
-    border-image: linear-gradient(to right, #ff7e5f, #0a4236) 1;
+    background-color: white;
+    color: black;
 }
 
 #container {
@@ -81,8 +79,9 @@ button:hover {
 #song-info {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
-    border: 2px solid;
-    border-image: linear-gradient(to right, #ff7e5f, #0a4236) 1;
+    border: 1px solid white;
+    color: white;
+    border-radius: 5px;
     padding: 10px;
 }
 
@@ -106,7 +105,6 @@ button:hover {
     grid-row: 2 / 4;
     width: 100%;
     height: 100%;
-    border-collapse: collapse;
     justify-content: center; /* Center horizontally */
     overflow-y: auto;
 }
@@ -127,7 +125,11 @@ table tbody tr:last-child td {
 
 #resultTable {
     align-items: flex-start; /* Align to the top */
+    border-collapse: separate; /* Ensures border radius works */
     width: 70%;
+    border: 1px solid white; /* Adds a border to the table */
+    border-radius: 5px; /* Rounds the corners of the table */
+    overflow: hidden; /* Ensures the border radius is applied to the entire table */
 }
 
 
@@ -218,6 +220,7 @@ table tbody tr:last-child td {
     color: black;
     cursor: pointer;
     transition: background-color 0.3s;
+    border-radius: 0;
 }
 
 #refreshSong:hover {

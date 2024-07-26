@@ -1,3 +1,7 @@
+* {
+    font-family: "Gugi", sans-serif;
+}
+
 body {
     font-family: Arial, sans-serif;
     margin: 0;
@@ -7,42 +11,80 @@ body {
     align-items: center;
     height: 100vh;
     box-sizing: border-box;
+    background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
+    color: white;
+    font-weight: 100;
+}
+
+.rank-left {
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+    width: 250px; /* Fixed width for the left div */
+    background-color: transparent; /* Background color for the left div */
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .container {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 20px;
     max-width: 3000px; /* Adjust as necessary */
     width: 75%; /* Occupy 3/4 of the window width */
-    /*height: 100%;*/
+    height: 100%;
     flex-wrap: wrap; /* Allows wrapping to next line */
 }
 
 .user-info {
-    text-align: center;
-    margin-right: 20px;
+    display: flex;
+    align-items: center; /* Aligns items vertically in the center */
+    margin: 10px;
     padding: 10px;
+    width: 100%;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    flex: 1 1 200px;
-    max-width: 300px;
+    border-radius: 5px;
     box-sizing: border-box;
 }
 
-#user-info {
+.user-info {
     display: none;
 }
 
-.user-info img {
-    width: 100px;
-    height: 100px;
+#profile-picture {
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
-    margin-bottom: 10px;
+    margin-right: 20px; /* Space between the image and the next block */
 }
+
+#rank-block, #info-block {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center items horizontally */
+    margin-right: 20px; /* Space between blocks */
+}
+
+#rank-block {
+    margin-right: 20px; /* Space between the rank block and info block */
+}
+
+#info-block {
+    align-items: flex-start; /* Align text to the left */
+}
+
+#info-block p {
+    margin: 0; /* Remove default margins for paragraphs */
+}
+
+#info-block #user-score {
+    margin-top: 5px; /* Small space between name and score */
+}
+
+
 
 .ranking-container {
     display: flex;
@@ -50,16 +92,16 @@ body {
     align-items: center;
     flex: 2 1 300px;
     width: 100%;
+    height: 100%;
     box-sizing: border-box;
 }
 
 .ranking-box {
     width: 100%;
-    height: 75%;
-    max-height: 500px;
+    height: 100%;
     overflow-y: auto;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 5px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     margin-bottom: 10px;
     padding: 10px;
@@ -97,9 +139,7 @@ body {
 }
 
 .score {
-    font-size: 14px;
-    color: #555;
-}
+    font-size: 14px;}
 
 .rank {
     font-weight: bold;
@@ -116,12 +156,14 @@ button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    border: none;
-    background-color: #007BFF;
-    color: white;
+    border: 1px solid white;
+    background-color: transparent;
     border-radius: 5px;
+    color: white;
+    transition: 0.3s;
 }
 
 button:hover {
-    background-color: #0056b3;
+    background-color: white;
+    color: black;
 }

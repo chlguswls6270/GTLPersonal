@@ -8,9 +8,10 @@ const axios = require('axios');
 const querystring = require('querystring');
 const portNumber = 5001;
 const WebSocket = require('ws');
+const tsParticles = require("@tsparticles/engine");
 require("dotenv").config({ path: path.resolve(__dirname, 'env_var_folder/.env') })
 const CLIENT_ID = process.env.CLIENT_ID;
-const CLIENT_SECRET = process.env.CLIENT_SECRET;
+// const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const JWT_SECRET = process.env.JWT_SECRET; // Use a secure key for signing JWT
 
 const server = createServer(app);
@@ -45,21 +46,21 @@ app.get("/", async (request, response) => {
       
     response.render("index", variables);
 });
-
 app.get("/songList", async (req, res) => {
     const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
     songArray = [];
     let result = [];
+    const limit = 15; // Number of songs to load initially
+
     try {
         await client.connect();
-        let filter = {};
         const cursor = client.db(databaseAndCollection.db)
-        .collection(databaseAndCollection.collection)
-        .find(filter);
-        
+            .collection(databaseAndCollection.collection)
+            .find({})
+            .limit(limit);
+
         result = await cursor.toArray();
         console.log(`Found: ${result.length} songs`);
-        //console.log(result);
     } catch (e) {
         console.error(e);
     } finally {
@@ -74,8 +75,68 @@ app.get("/songList", async (req, res) => {
         songArray: songArray
     };
     console.log("===========rendering songList")
-    console.log("======" + songArray)
+    console.log("======songArray song: " + songArray.length)
     res.render('songList', variables);
+});
+
+// New endpoint to load more songs
+app.get("/loadMoreSongs", async (req, res) => {
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    let result = [];
+    const limit = 15; // Number of songs to load per request
+    const offset = parseInt(req.query.offset) || 0; // Offset for pagination
+
+    try {
+        await client.connect();
+        const cursor = client.db(databaseAndCollection.db)
+            .collection(databaseAndCollection.collection)
+            .find({})
+            .skip(offset)
+            .limit(limit);
+        
+        result = await cursor.toArray();
+        songArray = songArray.concat(result);
+        console.log("=====in the result: " + result);
+        console.log(`Loaded more: ${result.length} songs`);
+        console.log("======songArray length: " + songArray.length);
+    } catch (e) {
+        console.error(e);
+    } finally {
+        await client.close();
+    }
+
+    res.json(result);
+});
+
+
+app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
+    const id = req.params.id;
+    const startTime = parseFloat(req.params.startTime);
+    const quizStart = parseFloat(req.params.quizStart);
+    const quizEnd = parseFloat(req.params.quizEnd);
+    //const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    console.log("========start time: " + startTime)
+    console.log("-=======start time param: " + req.params.startTime)
+    const objID = req.params.objID;
+
+    let song = songArray.find(elem => {
+        return elem._id.toString() === objID
+    });
+    
+    let solution = song.lyrics
+
+    const variables = {
+        id: id, 
+        startTime: startTime, 
+        quizStartTime: quizStart, 
+        quizEndTime: quizEnd,
+        portNumber: portNumber,
+        objID: objID,
+        solution: solution,
+    };
+
+    res.render('singleGame', variables);
+    
 });
 
 app.get("/addGame", (request, response) => {
@@ -86,7 +147,7 @@ app.get("/addGame", (request, response) => {
     };
       /* Generating the HTML using welcome template */
 
-      response.render("addGameV2", variables);
+      response.render("addGame", variables);
 });
 
 app.post("/addGame", async (request, response) => {
@@ -129,54 +190,33 @@ app.post("/addGame", async (request, response) => {
     response.render("confirm", variables);
 });
 
-app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
-    const id = req.params.id;
-    const startTime = parseFloat(req.params.startTime);
-    const quizStart = parseFloat(req.params.quizStart);
-    const quizEnd = parseFloat(req.params.quizEnd);
-    //const quizEnd = convertTimeToSeconds(req.params.quizEnd);
-    console.log("========start time: " + startTime)
-    console.log("-=======start time param: " + req.params.startTime)
-    const objID = req.params.objID;
 
-    let song = songArray.find(elem => {
-        return elem._id.toString() === objID
-    });
-    let solution = song.lyrics
-
-    const variables = {
-        id: id, 
-        startTime: startTime, 
-        quizStartTime: quizStart, 
-        quizEndTime: quizEnd,
-        portNumber: portNumber,
-        objID: objID,
-        solution: solution,
-    };
-
-    res.render('game', variables);
-    
-});
 
 app.get("/multResult/:result/:scoreChange", (req, res) => {
     let result = req.params.result;
     const scoreChange = req.params.scoreChange;
 
     if (result === 'won') {
-        result = 'you won!'
+        result = 'YOU WIN!'
+        variable = {
+            result: result,
+            scoreChange: scoreChange,
+        }
+        res.render('multResultWon', variable)
     } else if (result === 'lost') {
-        result = 'you lost!'
+        result = 'you lose...'
+        variable = {
+            result: result,
+            scoreChange: scoreChange,
+        }
+        res.render('multResultLost', variable)
     }
-    variable = {
-        result: result,
-        scoreChange: scoreChange,
-        portNumber: portNumber,
-    }
-    res.render('multResult', variable)
+    
+    
 });
 
 app.post("/songList/game/", (req, res) => {
-    console.log("is mult and solo game both use this????")
+    console.log("does mult and solo game both use this????")
     let { userAttempt, objID } = req.body;
     let song = songArray.find(elem => {
         return elem._id.toString() === objID

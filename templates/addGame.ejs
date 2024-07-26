@@ -1,37 +1,197 @@
-<!-- DO NOT MODIFY THIS FILE -->
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-
 <head>
-	<meta charset="utf-8" />
-	<link rel="stylesheet" href="/css/styles.css">
-
-	<title>Place Order</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/addGame.css">
+    <title>YouTube Player</title>
 </head>
-
 <body>
-	<h1>Application</h1>
-	<form action='http://localhost:<%- portNumber %>/addGame' method="post" onsubmit="return confirm('Are you sure you want to submit your application?\nYou will not be able to change your information once submited.');">
-		<fieldset>
-			<label>Song Name: <input type="text" name="songName"/></label>
-			<label>Artist: <input type="test" name="artist"></label>
-            <br><br>
-			<label>Target Lyrics:</label><br>
-            <label><textarea rows="5" cols="80" name="targetLyrics"></textarea></label>
-			<br><br>
-			<label>Start: <input type="text" name="startTime" placeholder="00:00"/></label>
-			<label>End: <input type="text" name="endTime" placeholder="00:00"/></label>
-			<label>Quiz Start: <input type="text" name="quizStartTime" placeholder="00:00"/></label>
-			<label>Quiz End: <input type="text" name="quizEndTime" placeholder="00:00"/></label>
-			<br><br>
-			<label>Youtube Link: <input type="text" name="youtubeLink"/></label>
-		</fieldset>
-		<br>
+    <div id="urlContainer">
+        <div id="text">
+            <p id="urlFieldText">youtube url:</p>
+        </div>
+        <div id="urlField">
+            <input type="text" name="youtubeURL" id="youtubeURLDisplay" placeholder="Enter url here"/>
+            <button id="youtubeURLSubmit">Submit URL</button>
+        </div>
+    </div>
+    
+        
 
-		<input type="reset" />
-		<input type="submit" value="Submit Application"/>
-	</form>
-    <a href="http://localhost:<%- portNumber %>">Home</a>
+        <form action='http://localhost:<%- portNumber %>/addGame' id="timeForm" name = "timeForm" method="post" onsubmit="return confirm('Are you sure you want to submit your application?\nYou will not be able to change your information once submited.');">
+            <div id="formContainer">
+                <div id="player-container">
+                    <div id="player"></div>
+                </div>
+                <div id="firstRow">
+                    <input type="text" name="artist" id="artist" placeholder="Artist"/>
+                    <input type="text" name="title" id="title" placeholder="Title"/>
+                </div>
+                <div id="secondRow">
+                    <div class="set" id="firstSet">
+                        <input type="text" name="startTime" id="startTime" placeholder="Music starts"/>
+                        <button type = 'button' id="startTimeButton">A</button>
+                    </div>
+                    <div class="set" id="secondSet">
+                        <input type="text" name="quizStartTime" id="quizStartTime" placeholder="Quiz starts">
+                        <button type = 'button' id="quizStartTimeButton">A</button>
+                    </div>
+                    <div class="set" id="thirdSet">
+                        <input type="text" name="quizEndTime" id="quizEndTime" placeholder="Quiz Ends">
+                        <button type = 'button' id="quizEndTimeButton">A</button>
+                    </div>
+                </div>
+                <div id="thirdRow">
+                    <input type="text" name="lyrics" id="lyrics" placeholder="Lyrics">
+                    <input type="reset" id="reset"/>
+                    <input type="submit" value="Submit" id="submit"/>
+                </div>
+                <div id="notShown">
+                    <input type="text" name="youtubeURL" id="youtubeURLForm"/>
+                    <input type="text" name="thumbnailURL" id="thumbnailURL"/>
+                </div>
+            </div>
+        </form>
+
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        // Add JavaScript here to handle the reset event
+        document.getElementById('timeForm').addEventListener('reset', function (event) {
+            // Save the values of the fields you want to exclude from reset
+            var youtubeURL = document.getElementById('youtubeURLForm').value;
+            var thumbnailURL = document.getElementById('thumbnailURL').value;
+
+            // Use setTimeout to restore the values after the reset event completes
+            setTimeout(function () {
+                document.getElementById('youtubeURLForm').value = youtubeURL;
+                document.getElementById('thumbnailURL').value = thumbnailURL;
+            }, 0);
+        });
+
+        let player;
+        let startTime;
+        let quizStartTime;
+        let quizEndTime;
+        let youtubeID;
+        
+        const youtubeSubmitButton = document.getElementById('youtubeURLSubmit');
+
+        youtubeSubmitButton.addEventListener('click', () => {
+            console.log("youtubeID");
+            let url = document.getElementById("youtubeURLDisplay").value;
+            console.log("url: " + url)
+            youtubeID = extractYouTubeVideoID(url);
+            document.getElementById('formContainer').style.display = 'grid';
+            document.getElementById('urlField').style.display = 'none';
+            document.getElementById('urlContainer').style.display = 'none';
+            document.getElementById('timeForm').style.display = 'flex';
+            document.getElementById('youtubeURLForm').value = url;
+            document.getElementById('thumbnailURL').value = getThumbnail(youtubeID);
+            initializePlayer(youtubeID);
+        });
+
+        function initializePlayer(youtubeID) {
+            if (player) {
+                player.destroy();
+            }
+
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: youtubeID, // variable
+                playerVars: {
+                    'controls': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': 0 //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('player', {
+                height: '390',
+                width: '640',
+                videoId: "nFYwcndNuOY", // variable
+                playerVars: {
+                    'controls': 1,
+                    'rel': 0,
+                    'showinfo': 0,
+                    'modestbranding': 1,
+                    'start': 0, //variable
+                    //'end': endTime //variable
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+            });
+        }
+
+        function onPlayerReady(event) {
+            const startTimeButton = document.getElementById('startTimeButton');
+            const quizStartTimeButton = document.getElementById('quizStartTimeButton');
+            const quizEndTimeButton = document.getElementById('quizEndTimeButton');
+
+            startTimeButton.addEventListener('click', () => {
+                console.log("sadfkjhsadfkjasdfkjhak");
+                let time = player.getCurrentTime();
+                let field = document.getElementById('startTime');
+                //field.value = formatTime(time);
+                field.value = time;
+            });
+
+            quizStartTimeButton.addEventListener('click', () => {
+                let time = player.getCurrentTime();
+                let field = document.getElementById('quizStartTime');
+                //field.value = formatTime(time);
+                field.value = time;
+            });
+
+            quizEndTimeButton.addEventListener('click', () => {
+                let time = player.getCurrentTime();
+                let field = document.getElementById('quizEndTime');
+                //field.value = formatTime(time);
+                field.value = time;
+            });
+        }
+
+        function onPlayerStateChange(event) {
+            
+        }
+
+        function extractYouTubeVideoID(url) {
+            const regex = /(?:https?:\/\/)?(?:www\.)?youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)([^\&\?\/]+)/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        function formatTime(seconds) {
+            // Round the input to the nearest whole number
+            var roundedSeconds = Math.round(seconds);
+
+            // Calculate minutes and remaining seconds
+            var minutes = Math.floor(roundedSeconds / 60);
+            var remainingSeconds = roundedSeconds % 60;
+
+            // Ensure two digits for seconds
+            var formattedSeconds = remainingSeconds < 10 ? '0' + remainingSeconds : remainingSeconds;
+
+            // Return the formatted time string
+            return minutes + ':' + formattedSeconds;
+        }
+
+        function getThumbnail(videoId) {
+            return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        }
+    </script>
 </body>
-
 </html>

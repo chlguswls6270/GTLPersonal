@@ -1,29 +1,33 @@
-<!-- DO NOT MODIFY THIS FILE -->
 <!doctype html>
 <html lang="en">
 
 <head>
-	<meta charset="utf-8" />
-	<link rel="stylesheet" href="/css/styles.css">
-
-	<title>Order Confirmation</title>
+    <meta charset="utf-8" />
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/css/confirm.css">
+    <title>Order Confirmation</title>
 </head>
 
 <body>
-	<h1>New Quiz Made!</h1>
-	<div>
-		<strong>artist:<br></strong><%- artist %><br>
-		<strong>title:<br></strong><%- title %><br>
-		<strong>targetLyrics: </strong><%- lyrics %><br>
-		<strong>startTime:<br></strong><%- startTime %><br>
-		<strong>quizStartTime:<br></strong><%- quizStartTime %><br>
-		<strong>quizEndTime:<br></strong><%- quizEndTime %><br>
-		<strong>youtubeLink:<br></strong><%- youtubeURL %><br>
-        <hr>
-		<em>Task completed at <%- time %></em>
-        <hr>
-        <a href="http://localhost:<%- portNumber %>">Home</a>
-	</div>
+    <div class="container">
+        <h1>New Quiz Sent!</h1>
+        <p>Wait for developer to approve it</p>
+        <div class="box">
+            <div class="info"><strong>Artist</strong> <span><%- artist %></span></div>
+            <div class="info"><strong>Title</strong> <span><%- title %></span></div>
+            <div class="info"><strong>Lyrics</strong> <span><%- lyrics %></span></div>
+            <div class="info"><strong>Music Start Time</strong> <span><%- startTime %></span></div>
+            <div class="info"><strong>Quiz Start Time</strong> <span><%- quizStartTime %></span></div>
+            <div class="info"><strong>Quiz End Time</strong> <span><%- quizEndTime %></span></div>
+            <div class="info"><strong>YouTube Link</strong> <span><a href="<%- youtubeURL %>" target="_blank"><%- youtubeURL %></a></span></div>
+        </div>
+		<button id="homeButton">Home</button>
+    </div>
+	<script>
+		document.getElementById('homeButton').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+	</script>
 </body>
 
 </html>

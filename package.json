@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@tsparticles/engine": "^3.5.0",
     "axios": "^1.7.2",
     "dotenv": "^16.4.5",
     "ejs": "^3.1.10",
@@ -19,5 +20,8 @@
     "mongoose": "^8.4.3",
     "querystring": "^0.2.1",
     "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3"
   }
 }

@@ -18,13 +18,13 @@ function loadUserInfo() {
         console.log(userInfo.score);
         document.getElementById('profile-picture').src = userInfo.image;
         document.getElementById('user-name').textContent = userInfo.name;
-        document.getElementById('user-score').textContent = `Score: ${userInfo.score}`;
-        document.getElementById('user-ranking').textContent = `Rank: ${userInfo.rank}`;
-        document.getElementById('user-info').style.display = 'block';
+        document.getElementById('user-score').textContent = `${userInfo.score}`;
+        document.getElementById('user-ranking').textContent = `${userInfo.rank}`;
+        document.getElementById('user-info').style.display = 'flex';
     }
 }
 
-async function loadRankings() {
+async function loadRankings() { 
     const rankingBox = document.getElementById('ranking-box');
     rankingBox.innerHTML = 'Loading...';
 

@@ -5,14 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ranking Page</title>
     <link rel="stylesheet" href="/css/ranking.css">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+
 </head>
 <body>
+    <div class="rank-left">
+        <h1>Rank</h1>
+    </div>
     <div class="container">
         <div class="user-info" id="user-info">
             <img id="profile-picture" src="default-profile.png" alt="Profile Picture">
-            <p id="user-name">User Name</p>
-            <p id="user-score">Score: 0</p>
-            <p id="user-ranking">Rank: 0</p>
+            <div id="rank-block">
+                <p id="user-ranking">Unknown</p>
+                <p>Rank</p>
+            </div>
+            <div id="info-block">
+                <p id="user-name">Unknown</p>
+                score: <p id="user-score">Unknown</p>
+            </div>
         </div>
 
         <div class="ranking-container">

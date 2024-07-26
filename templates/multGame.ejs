@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/css/game.css">
+    <link rel="stylesheet" href="/css/multGame.css">
     <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
     <title>Game Page</title>
 </head>
@@ -51,7 +51,7 @@
 
     <div id="gameDidNotStart" class="modal">
         <div class="modal-content">
-            <p id="failMessage">game did not start yet</p>
+            <p id="failMessage">Game did not start yet<br>Wait for other users</p>
         </div>
     </div>
 
@@ -187,7 +187,7 @@
                 console.log("=========user answer: " + (userInput))
 
                 event.preventDefault();
-                document.getElementById('customAlert').style.display = 'block';
+                document.getElementById('customAlert').style.display = 'flex';
             } else {
                 console.log("==========got it right")
                 console.log("=========correct answer: " + solutionData)

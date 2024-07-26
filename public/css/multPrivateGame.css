@@ -49,24 +49,25 @@ button {
     width: 100%;
     cursor: pointer;
     background-color: #1B1B1B;
-    border: 2px solid #1B1B1B;
+    border: 1px solid white;
     color: white;
-    transition: background-color 0.3s;
+    border-radius: 5px;
+    transition: 0.3s;
     font-size: 1.2em;
 }
 
 button:hover {
-    background-color: black;
-    border: 2px solid;
-    border-image: linear-gradient(to right, #ff7e5f, #0a4236) 1;
+    background-color: white;
+    color: black;
 }
 
 input[type="text"] {
-    background-color: #424242;
+    background-color: #1B1B1B;
     padding: 10px;
     font-size: 2rem;
     width: 100%; /* Take full width of the grid column */
-    border: none;
+    border: 1px solid white;
+    border-radius: 5px;
     box-sizing: border-box;
     color: white;
 }
