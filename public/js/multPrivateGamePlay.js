@@ -95,6 +95,43 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     window.location.href = `/multPrivateResult/lost/${data.winner}/${rank}`
                 }
+            } else if (data.type === 'update') {
+                console.log("updating...");
+                // window.location.href = `/multPrivateJoinRoom/${room}`;
+                songInfoArray = JSON.parse(data.songInfoArray);
+                console.log("songInfoArray in gameplay.js: " + songInfoArray);
+
+
+                startTime = songInfoArray[0].startTime;
+                quizStartTime = songInfoArray[0].quizStart;
+                quizEndTime =songInfoArray[0].quizEnd;
+                quizStarted = false;
+                quizSubmitted = false;
+                playRequested = false;
+
+                solutionData = songInfoArray[0].solution;
+                // Check if a player instance already exists
+                if (player && player.destroy) {
+                    player.destroy();
+                }
+                player = new YT.Player('player', {
+                    height: '390',
+                    width: '640',
+                    videoId: songInfoArray[0].youtubeURL,
+                    playerVars: {
+                        'controls': 0,
+                        'rel': 0,
+                        'showinfo': 0,
+                        'modestbranding': 1,
+                        'start': Math.floor(startTime),
+                        'cc_load_policy': 0,
+                        'cc_lang_pref': '',
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
             }
         }
     };
@@ -117,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('gameDidNotStart').style.display = 'none';
         playRequested = true;
         player.playVideo();
-        
     }
 
     function isValidJSON(str) {

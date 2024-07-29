@@ -17,7 +17,6 @@ body {
     background-color: black;
     padding: 10px;
     box-sizing: border-box;
-    background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
 }
 
 #container {

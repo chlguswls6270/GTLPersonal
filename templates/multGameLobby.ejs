@@ -21,7 +21,8 @@
             <div id="song-list">
                 <% songInfoArray.forEach(function(songInfo) {%>
                     <div id="songTitles">
-                        <strong><%= songInfo.title %></strong>
+                        <strong><%= songInfo.title %></strong><br>
+                        <strong><%= songInfo.artist %></strong>
                     </div>
                 <% }); %>
             </div>
@@ -33,16 +34,6 @@
         <div id="start-game">
             <button id="start">start</button>
         </div>
-        <!-- <table id="users">
-            <thead>
-                <tr>
-                    <th>user</th>
-                    <th>score</th>
-                </tr>
-            </thead>
-            <tbody>
-            </tbody>
-        </table> -->
         <div id="users"></div>
         <div id="result-table">
             <table id="resultTable">
@@ -57,20 +48,18 @@
                 </tbody>
             </table>
         </div>
-        <!-- <div>
-            <p id="winnerAlert"></p>
-        </div> -->
         <div id="home-button">
             <button id="homeButton">Home</button>
         </div>
 	</div>
-    <script src="/js/multPrivateGameLobby.js"></script>
     <script>
+        const room = "<%- room %>";
         // Handle Go Back to Home button click
         document.getElementById('homeButton').addEventListener('click', function() {
             window.location.href = 'http://localhost:<%- portNumber %>'; // Redirect to home page
         });
     </script>
+    <script src="/js/multPrivateGameLobby.js"></script>
 </body>
 
 </html>

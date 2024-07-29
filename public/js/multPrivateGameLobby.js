@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // const input = document.getElementById('inputField');
     // const messages = document.getElementById('chat-log');
     const usersDiv = document.getElementById('users');
-    const resultTable = document.getElementById('resultTable')
+    const resultTable = document.getElementById('resultTable');
     let users = new Map();
     ws.onmessage = (event) => {
         //display user when new user is detected.
@@ -82,6 +82,53 @@ document.addEventListener('DOMContentLoaded', () => {
         ws.send(JSON.stringify({ type: 'start', message: "start the game!" }));// Change this URL to the desired page
     });
     //send start mesage to wss when host press start button
+
+    document.getElementById('refreshSong').addEventListener('click', async () => {
+        const refreshSongButton= document.getElementById('refreshSong');
+        refreshSongButton.disabled = true;
+        refreshSongButton.textContent = "Loading...";
+        console.log("room: " + room);
+        const numSongs = document.getElementById('numSong').value;
+        console.log("numSongs: " + numSongs);
+
+        try {
+            const response = await fetch(`/refreshSongs/${numSongs}/${room}`);
+            const songInfoArray = await response.json();
+
+            if (songInfoArray.length === 0) {
+                alert("Something went wrong");
+                return;
+            }
+            const songList = document.getElementById('song-list');
+            songList.innerHTML = '';
+            songInfoArray.forEach(songInfo => {
+                const songTitleDiv = document.createElement('div');
+                songTitleDiv.id = 'songTitles';
+                
+                const songTitleStrong = document.createElement('strong');
+                songTitleStrong.textContent = songInfo.title;
+                
+                songTitleDiv.appendChild(songTitleStrong);
+                
+                const artistStrong = document.createElement('strong');
+                artistStrong.textContent = songInfo.artist;
+                
+                const lineBreak = document.createElement('br');
+                
+                songTitleDiv.appendChild(songTitleStrong);
+                songTitleDiv.appendChild(lineBreak);
+                songTitleDiv.appendChild(artistStrong);
+                songList.appendChild(songTitleDiv);
+            });
+
+            ws.send(JSON.stringify({ type: 'update', songInfoArray: JSON.stringify(songInfoArray) }));
+
+            refreshSongButton.textContent = 'refresh'; // Change the button text back
+            refreshSongButton.disabled = false; // Re-enable the button
+        } catch (error) {
+            console.error('Error loading more songs:', error);
+        }
+    });
 
     function getKeyWithGreatestValue(users) {
         // Convert the object to an array of key-value pairs

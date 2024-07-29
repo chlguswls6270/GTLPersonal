@@ -34,7 +34,15 @@
     <script>
         let offset = <%= songArray.length %>;
 
+        // Simulate a click on the "Load More" button when the document loads
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('loadMoreButton').click();
+        });
+
         document.getElementById('loadMoreButton').addEventListener('click', async () => {
+            const loadMoreButton = document.getElementById('loadMoreButton');
+            loadMoreButton.disabled = true;
+            loadMoreButton.textContent = "Loading..."
             try {
                 const response = await fetch(`/loadMoreSongs?offset=${offset}`);
                 const newSongs = await response.json();
@@ -66,6 +74,8 @@
                 });
 
                 offset += newSongs.length;
+                loadMoreButton.textContent = 'Load More'; // Change the button text back
+                loadMoreButton.disabled = false; // Re-enable the button
             } catch (error) {
                 console.error('Error loading more songs:', error);
             }

@@ -46,30 +46,8 @@ app.get("/", async (request, response) => {
       
     response.render("index", variables);
 });
-app.get("/songList", async (req, res) => {
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+app.get("/songList", (req, res) => {
     songArray = [];
-    let result = [];
-    const limit = 15; // Number of songs to load initially
-
-    try {
-        await client.connect();
-        const cursor = client.db(databaseAndCollection.db)
-            .collection(databaseAndCollection.collection)
-            .find({})
-            .limit(limit);
-
-        result = await cursor.toArray();
-        console.log(`Found: ${result.length} songs`);
-    } catch (e) {
-        console.error(e);
-    } finally {
-        await client.close();
-    }
-
-    result.forEach(elem => {
-        songArray.push(elem);
-    });
 
     const variables = {
         songArray: songArray
@@ -389,10 +367,6 @@ app.get('/multPrivateGameMakeRoom', async (req, res) => {
     
     //get random song from the db and store its info in roomMap.
     let randSongArray = await getRandomDocument(1);
-    //NEED TO FIX THIS FOR RANDSONG
-    let randSong = randSongArray[0];
-    console.log("========randSong: " + randSong)
-    console.log("======randSong ID: " + randSong._id)
     //let pickedSongID = randSong._id.toString();
     let songInfoArray = [];
 
@@ -403,18 +377,10 @@ app.get('/multPrivateGameMakeRoom', async (req, res) => {
             quizEnd: parseFloat(elem.quizEndTime),
             youtubeURL: elem.youtubeURL,
             solution: elem.lyrics,
-            title: elem.title
+            title: elem.title,
+            artist: elem.artist,
         });
     });
-
-    // let songInfo = {
-    //     startTime: parseFloat(randSong.startTime),
-    //     quizStart: parseFloat(randSong.quizStartTime),
-    //     quizEnd: parseFloat(randSong.quizEndTime),
-    //     youtubeURL: randSong.youtubeURL,
-    //     solution: randSong.lyrics,
-    //     title: randSong.title
-    // }
     
     console.log("============length of songArray: " + songArray.length);
     //console.log("============picked ObjID: " + pickedSongID);
@@ -451,27 +417,70 @@ app.get('/multGameLobby/:room', (req, res) => {
     res.render('multGameLobby', variables);
 });
 
+// New endpoint to load more songs
+app.get("/refreshSongs/:numSongs/:room", async (req, res) => {
+
+    const numSongs = parseInt(req.params.numSongs);
+    let room = req.params.room;
+    console.log("numSong: " + numSongs);
+    console.log("room: " + room);
+    let songInfoArray = [];
+    try {
+        console.log("trying....")
+        let randSongArray = await getRandomDocument(numSongs);
+        console.log("got randsong: " + randSongArray);
+        
+
+        randSongArray.forEach(elem => {
+            songInfoArray.push({
+                startTime: parseFloat(elem.startTime),
+                quizStart: parseFloat(elem.quizStartTime),
+                quizEnd: parseFloat(elem.quizEndTime),
+                youtubeURL: elem.youtubeURL,
+                solution: elem.lyrics,
+                title: elem.title,
+                artist: elem.artist,
+            });
+        });
+        console.log("made songInfoArray: " + songInfoArray);
+        updateFieldInPrivateRoomMap(room, "songInfoArray", songInfoArray);
+        console.log("value of the map corresponding to the key updated: " + privateRoomMap.get(room));
+        console.log("updated field in map.");
+    } catch (e) {
+        console.error(e);
+    }
+    console.log("sending things....")
+    res.json(songInfoArray);
+});
+
+// Function to update a field in an object within the map
+function updateFieldInPrivateRoomMap(key, field, newValue) {
+    if (privateRoomMap.has(key)) {
+        let obj = privateRoomMap.get(key); // Get the object by key
+        obj[field] = newValue; // Update the specific field
+        console.log("updating room number: " + key);
+        console.log("field that is updated: " + field);
+        console.log("value for updated field: " + newValue);
+        console.log("updated value for key: " + obj.songInfoArray);
+        privateRoomMap.set(key, obj); // Update the map with the modified object
+    } else {
+        console.log(`Key ${key} does not exist in the map.`);
+    }
+}
+
 app.get('/multPrivateJoinRoom/:room', (req, res) => {
     //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = privateRoomMap.get(room);
-    // let objID = roomInfo.songID;
-    
-    // const startTime = roomInfo.songInfo.startTime;
-    // const quizStart = roomInfo.songInfo.quizStart;
-    // const quizEnd = roomInfo.songInfo.quizEnd;
+    console.log("room: " + room);
+    console.log("roomInfo: " + roomInfo);
+    console.log("songInfoArray: " + roomInfo.songInfoArray);
+
     const variables = {
-        // id: roomInfo.songInfo.youtubeURL,
-        // startTime: startTime,
-        // quizStartTime: quizStart,
-        // quizEndTime: quizEnd,
         portNumber: portNumber,
         songInfoArray: roomInfo.songInfoArray,
-        // // objID: objID,
-        // solution: roomInfo.songInfo.solution,
+        room: room,
     };
-
-    // console.log("=============solution in server: " + roomInfo.songInfo.solution)
 
     res.render('multPrivateGamePlay', variables);
 });
@@ -673,6 +682,15 @@ function handleMultPrivateLobby(ws, room) {
                 clients.forEach(client => {
                     console.log("===========end message sent from lobby to plays.")
                     client.ws.send(JSON.stringify({type: 'end', winner: data.winner, users: data.users}))
+                });
+            }
+        } else if (data.type === 'update') {
+            const clients = roomData.clients;
+            if (clients) {
+                clients.forEach(client => {
+                    console.log("===========update message sent from lobby to plays.")
+                    console.log("songIngoArray received by server: " + data.songInfoArray);
+                    client.ws.send(JSON.stringify({type: 'update', songInfoArray: data.songInfoArray}));
                 });
             }
         }
