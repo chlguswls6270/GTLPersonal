@@ -35,8 +35,6 @@ app.use(bodyParser.urlencoded({extended:false}));
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
-//array of all songs. need to optimize later
-let songArray = [];
 
 app.get("/", async (request, response) => {
     
@@ -47,13 +45,10 @@ app.get("/", async (request, response) => {
     response.render("index", variables);
 });
 app.get("/songList", (req, res) => {
-    songArray = [];
 
     const variables = {
-        songArray: songArray
     };
     console.log("===========rendering songList")
-    console.log("======songArray song: " + songArray.length)
     res.render('songList', variables);
 });
 
@@ -68,15 +63,13 @@ app.get("/loadMoreSongs", async (req, res) => {
         await client.connect();
         const cursor = client.db(databaseAndCollection.db)
             .collection(databaseAndCollection.collection)
-            .find({})
+            .find({ approved: true })
             .skip(offset)
             .limit(limit);
         
         result = await cursor.toArray();
-        songArray = songArray.concat(result);
         console.log("=====in the result: " + result);
         console.log(`Loaded more: ${result.length} songs`);
-        console.log("======songArray length: " + songArray.length);
     } catch (e) {
         console.error(e);
     } finally {
@@ -86,8 +79,19 @@ app.get("/loadMoreSongs", async (req, res) => {
     res.json(result);
 });
 
+// Function to encode special characters to HTML entities
+function encodeForHtml(str) {
+    return str.replace(/&/g, '&amp;')
+              .replace(/</g, '&lt;')
+              .replace(/>/g, '&gt;')
+              .replace(/"/g, '&#34;')
+              .replace(/'/g, '&#39;')
+              .replace(/\//g, '&#x2F;')
+              .replace(/`/g, '&#x60;')
+              .replace(/=/g, '&#x3D;');
+}
 
-app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) => {
+app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', async (req, res) => {
     const id = req.params.id;
     const startTime = parseFloat(req.params.startTime);
     const quizStart = parseFloat(req.params.quizStart);
@@ -96,12 +100,19 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', (req, res) =
     console.log("========start time: " + startTime)
     console.log("-=======start time param: " + req.params.startTime)
     const objID = req.params.objID;
+    const objId = new ObjectId(objID);
 
-    let song = songArray.find(elem => {
-        return elem._id.toString() === objID
-    });
-    
-    let solution = song.lyrics
+    //find solution in mongodb
+    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+    const result = await client.db(databaseAndCollection.db)
+        .collection(databaseAndCollection.collection)
+        .findOne(
+            { _id: objId }
+        );
+    let solution = result.lyrics;
+    solution = encodeForHtml(solution);
+    console.log("result in app.get: " + result);
+    console.log("solution in app.get: " + solution);
 
     const variables = {
         id: id, 
@@ -144,7 +155,8 @@ app.post("/addGame", async (request, response) => {
             artist: artist,
             title: title,
             youtubeURL: extractYouTubeVideoID(youtubeURL),
-            thumbnailURL: thumbnailURL
+            thumbnailURL: thumbnailURL,
+            approved: false,
         };
         await insertQuiz(client, databaseAndCollection, quiz);
     } catch (e) {
@@ -193,25 +205,12 @@ app.get("/multResult/:result/:scoreChange", (req, res) => {
     
 });
 
-app.post("/songList/game/", (req, res) => {
-    console.log("does mult and solo game both use this????")
-    let { userAttempt, objID } = req.body;
-    let song = songArray.find(elem => {
-        return elem._id.toString() === objID
-    });
-    let result = "";
-
-    console.log("answer: " + song.lyrics);
-    console.log("user:   " + userAttempt + "////");
-    
-    if (song.lyrics === userAttempt) {
-        result = "you got it right!"
-    } else {
-        result = "you are wrong!"
-    }
+app.post("/songList/game/", async (req, res) => {
+    console.log("does mult and solo game both use this????");
+    let display = "you got it right!";
 
     variable = {
-        result: result,
+        result: display,
         portNumber: portNumber
     };
 
@@ -240,10 +239,9 @@ app.get('/multGame', async (req, res) => {
             quizStart: parseFloat(randSong.quizStartTime),
             quizEnd: parseFloat(randSong.quizEndTime),
             youtubeURL: randSong.youtubeURL,
-            solution: randSong.lyrics
+            solution: encodeForHtml(randSong.lyrics),
         }
         
-        console.log("============length of songArray: " + songArray.length);
         console.log("============picked ObjID: " + pickedSongID);
         console.log("============adding room: " + roomNumber);
         //roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
@@ -252,6 +250,14 @@ app.get('/multGame', async (req, res) => {
         console.log("===========there was an avaible room!==========");
     }
     res.redirect("/multGame/" + roomNumber)
+});
+
+app.get('/invalidRoom', (req, res) => {
+    const result = 'YOUR ROOM IS INVALID!'
+    variable = {
+        result: result,
+    }
+    res.render('invalidRoom', variable);
 });
 
 async function getRandomDocument(num) {
@@ -382,7 +388,6 @@ app.get('/multPrivateGameMakeRoom', async (req, res) => {
         });
     });
     
-    console.log("============length of songArray: " + songArray.length);
     //console.log("============picked ObjID: " + pickedSongID);
     console.log("============adding room: " + roomNumber);
     //roomMap.set(roomNumber, { clients: new Set(), started: false, songID: pickedSongID, startTime: Date.now(), timer: null});
@@ -575,10 +580,11 @@ function handleSinglePublic(ws, room) {
     // }
     console.log("wss room name: " + room)
     if (!roomMap.has(room) || roomMap.get(room).clients.size > num_max_user || roomMap.get(room).started) {
-        console.log("room does not exists: " + !roomMap.has(room))
-        console.log("room capacity greater than max" + roomMap.get(room).clients.size > num_max_user)
-        console.log("room has started: " + roomMap.get(room).started)
-        console.log("tried to enter a invalid room: does not exist, already started.")
+        // console.log("room does not exists: " + !roomMap.has(room))
+        // console.log("room capacity greater than max" + roomMap.get(room).clients.size > num_max_user)
+        // console.log("room has started: " + roomMap.get(room).started)
+        // console.log("tried to enter a invalid room: does not exist, already started.")
+        ws.send(JSON.stringify({ type: 'invalid-room' }));
         ws.close();
         return;
     }
@@ -660,6 +666,11 @@ function handleSinglePublic(ws, room) {
 }
 
 function handleMultPrivateLobby(ws, room) {
+    if (!privateRoomMap.has(room) || privateRoomMap.get(room).started) {
+        ws.send(JSON.stringify({ type: 'invalid-room' }));
+        ws.close();
+        return;
+    }
     const roomData = privateRoomMap.get(room);
     roomData.lobby = ws;  // Add the client to the room's set
     ws.on('message', (message) => {
@@ -676,6 +687,7 @@ function handleMultPrivateLobby(ws, room) {
                     }
                 });
             }
+            privateRoomMap.get(room).started = true;
         } else if (data.type === 'end') {
             const clients = roomData.clients;
             if (clients) {
@@ -713,6 +725,11 @@ function handleMultPrivateLobby(ws, room) {
 }
 
 function handleMultPrivatePlay(ws, room) {
+    if (!privateRoomMap.has(room) || privateRoomMap.get(room).started) {
+        ws.send(JSON.stringify({ type: 'invalid-room' }));
+        ws.close();
+        return;
+    }
     const roomData = privateRoomMap.get(room);
     roomData.clients.add({ws: ws, idx: roomData.currPlayer});  // Add the client to the room's set
     roomData.lobby.send(JSON.stringify({ type: 'new-user', idx: roomData.currPlayer }))

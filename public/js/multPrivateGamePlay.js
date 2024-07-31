@@ -132,12 +132,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         'onStateChange': onPlayerStateChange
                     }
                 });
+            } else if (data.type === 'invalid-room') {
+                window.location.href = '/invalidRoom';
             }
         }
     };
 
     form.onsubmit = event => {
         event.preventDefault();
+        console.log('======solutionData: ' + solutionData);
+        console.log('======unserInput: ' + input.value);
         if (input.value) {
             if (input.value === solutionData) { //game not ended yet. need to continue to next round.
                 console.log("=======user got it right!")

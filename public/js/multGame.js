@@ -28,7 +28,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateSessionStorage(data.score);
                     updateScoreMongoDB(data.score);
                 }
-                
+            } else if (data.type === 'invalid-room') {
+                window.location.href = '/invalidRoom';
             }
         } else if (typeof event.data === 'string') {
             const message = document.createElement('div');
@@ -48,8 +49,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     form.onsubmit = event => {
         event.preventDefault();
-        if (input.value) {
-            if (input.value === solutionData) {
+        let userInput = document.getElementById('inputField').value;
+        userInput = encodeForHtml(userInput);
+        console.log("=========correct answer: " + solutionData)
+        console.log("=========user answer: " + (userInput))
+        if (userInput) {
+            if (userInput === solutionData) {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
             } else {

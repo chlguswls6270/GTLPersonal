@@ -179,7 +179,7 @@
         });
 
         let solutionData = songInfoArray[0].solution;
-
+        console.log("=======solution in ejs: " + solutionData)
         document.getElementById('userForm').addEventListener('submit', function(event) {
             const userInput = document.getElementById('inputField').value;
             if (userInput !== solutionData) {

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html len="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+    <title>game page</title>
+    <style>
+        * {
+            font-family: "Gugi", sans-serif;
+        }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
+            color:white;
+        }
+        h1 {
+            font-size: 6rem;
+        }
+        #buttons {
+            position: absolute;
+            bottom: 50px;
+            display: flex;
+            flex: row;
+        }
+        button {
+            padding: 10px;
+            margin: 10px;
+            cursor: pointer;
+            background-color: #1B1B1B;
+            border: 1px solid white;
+            border-radius: 5px;
+            color: white;
+            transition: background-color 0.3s;
+            font-size: 1em;
+            z-index: 2;
+        }
+        #text {
+            text-align: center;
+        }
+        #text p {
+            margin: 0;
+            padding-bottom: 5px; /* Adjust the space between the elements as needed */
+        }
+        #text h1 {
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="text">
+        <h1><%- result -%></h1>
+    </div>
+    <div id="buttons">
+        <button id="home">Home</button>
+    </div>
+    <script>
+        document.getElementById('home').addEventListener('click', function() {
+            window.location.href = '/';  
+        });
+    </script>
+</body>

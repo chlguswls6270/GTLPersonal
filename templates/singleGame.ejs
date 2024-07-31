@@ -172,11 +172,25 @@
             player.playVideo(); // Resume the video after form submission
         });
 
-        const solutionData = '<%= solution %>'
+        // Function to encode special characters to HTML entities
+        function encodeForHtml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&#34;')
+                      .replace(/'/g, '&#39;')
+                      .replace(/\//g, '&#x2F;')
+                      .replace(/`/g, '&#x60;')
+                      .replace(/=/g, '&#x3D;');
+        }
+
+        const solutionData = "<%- solution %>";
+        console.log("soleution in ejs: " + solutionData);
         // Add event listener to the form
         document.getElementById('userForm').addEventListener('submit', function(event) {
-            const userInput = document.getElementById('inputField').value;
-            
+            let userInput = document.getElementById('inputField').value;
+            userInput = encodeForHtml(userInput);
+            console.log("=======" + userInput);
             // Check if user input matches the solution
             if (userInput !== solutionData) {
                 event.preventDefault(); // Prevent form submission

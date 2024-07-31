@@ -15,24 +15,14 @@
     </div>
     <div class="cards-container">
         <div class="cards" id="songListCards">
-            <% songArray.forEach(function(song) { %>
-                <div class="songListcard" onclick="window.location.href='songList/game/<%= song.youtubeURL %>/<%= song.startTime %>/<%= song.quizStartTime %>/<%= song.quizEndTime %>/<%= song._id %>'">
-                    <div class="songListcard-content">
-                        <%= song.title %>
-                        <br><br>
-                        <%= song.artist %>
-                        <br><br>
-                        <img src="<%= song.thumbnailURL %>" alt="thumbnail" class="thumbnail">
-                    </div>
-                </div>
-            <% }); %>
+            
         </div>
         <div class="load-more-container">
             <button id="loadMoreButton">Load More</button>
         </div>
     </div>
     <script>
-        let offset = <%= songArray.length %>;
+        let offset = 0;
 
         // Simulate a click on the "Load More" button when the document loads
         document.addEventListener('DOMContentLoaded', () => {

@@ -175,12 +175,25 @@
             quizSubmitted = true;
             player.playVideo();
         });
+        // Function to encode special characters to HTML entities
+        function encodeForHtml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&#34;')
+                      .replace(/'/g, '&#39;')
+                      .replace(/\//g, '&#x2F;')
+                      .replace(/`/g, '&#x60;')
+                      .replace(/=/g, '&#x3D;');
+        }
 
         const solutionData = "<%- solution %>";
-
+        console.log("=======solution: " + solutionData);
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
-            const userInput = document.getElementById('inputField').value;
+            let userInput = document.getElementById('inputField').value;
+            userInput = encodeForHtml(userInput);
+            console.log("=======userInput: " + userInput);
             if (userInput !== solutionData) {
                 console.log("==========got it wrong")
                 console.log("=========correct answer: " + solutionData)
@@ -188,10 +201,6 @@
 
                 event.preventDefault();
                 document.getElementById('customAlert').style.display = 'flex';
-            } else {
-                console.log("==========got it right")
-                console.log("=========correct answer: " + solutionData)
-                console.log("=========user answer: " + (userInput))
             }
         });
 

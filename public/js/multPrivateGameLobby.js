@@ -70,6 +70,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             //redirect to podium.
             window.location.href = '/multPrivateGame/podium/' + btoa(JSON.stringify(getRankedUsers(users)));
+        } else if (data.type === 'invalid-room') {
+            window.location.href = '/invalidRoom';
         }
     };
 
