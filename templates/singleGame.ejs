@@ -210,7 +210,7 @@
 
         async function calculateSimilarity(sentence1, sentence2) {
             try {
-                const response = await fetch(`http://localhost:<%- portNumber %>/calculate-similarity`, {
+                const response = await fetch(`https://gtl-2zy7.onrender.com/calculate-similarity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -247,7 +247,7 @@
         // Handle Go Back to Home button click
         document.getElementById('homeButton').addEventListener('click', function() {
             console.log("=======");
-            window.location.href = 'http://localhost:<%- portNumber %>'; // Redirect to home page
+            window.location.href = 'https://gtl-2zy7.onrender.com'; // Redirect to home page
         });
         
         
