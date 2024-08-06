@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const app = express();  /* app is a request handler function */
 const querystring = require('querystring');
 const portNumber = 5001;
+const port = process.env.URL;
 const WebSocket = require('ws');
 require("dotenv").config({ path: path.resolve(__dirname, 'env_var_folder/.env') })
 const CLIENT_ID = process.env.CLIENT_ID;
@@ -131,13 +132,18 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', async (req, 
     solution = encodeForHtml(solution);
     console.log("result in app.get: " + result);
     console.log("solution in app.get: " + solution);
-
+    let portTemp;
+    if (port) {
+        portTemp = port;
+    } else {
+        portTemp = `http://localhost:${portNumber}`
+    }
     const variables = {
         id: id, 
         startTime: startTime, 
         quizStartTime: quizStart, 
         quizEndTime: quizEnd,
-        portNumber: portNumber,
+        port: portTemp,
         objID: objID,
         solution: solution,
     };
