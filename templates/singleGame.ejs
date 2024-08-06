@@ -25,7 +25,7 @@
             <button id="homeButton">Home</button>
         </div>
         <div class="formContainer" id="formContainer">
-            <form id="userForm" action="http://localhost:<%- portNumber %>/songList/game" method="post">
+            <form id="userForm" action="https://gtl-2zy7.onrender.com/songList/game" method="post">
                 <div class="input-submit">
                     <div class="inputField"><input type="text" id="inputField" name="userAttempt" placeholder="Enter text here"></div>
                     <div class="submitButton"><input type="submit" id="submitButton" value="Submit"></div>
@@ -40,6 +40,7 @@
     <div id="customAlert" class="modal">
         <div class="modal-content">
             <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
+            <p id="sim"></p>
             <button id="tryAgainButton">Try Again</button>
             <button id="goHomeButton">Go Back to Home</button>
         </div>
@@ -184,25 +185,56 @@
                       .replace(/=/g, '&#x3D;');
         }
 
-        const solutionData = "<%- solution %>";
+        const solutionData = "<%- solution %>".toLowerCase();
         console.log("soleution in ejs: " + solutionData);
         // Add event listener to the form
-        document.getElementById('userForm').addEventListener('submit', function(event) {
+        document.getElementById('userForm').addEventListener('submit', async function(event) {
             let userInput = document.getElementById('inputField').value;
-            userInput = encodeForHtml(userInput);
+            userInput = encodeForHtml(userInput).toLowerCase();
             console.log("=======" + userInput);
             // Check if user input matches the solution
             if (userInput !== solutionData) {
                 event.preventDefault(); // Prevent form submission
                 document.getElementById('customAlert').style.display = 'flex';
-            } else {
-                endGame()
+                let sim;
+                try {
+                    sim = await calculateSimilarity(userInput, solutionData);
+                    console.log("sim: " + sim);
+                } catch (error) {
+                    console.log("error when calculating sim")
+                }
+                console.log("sim: " + sim);
+                document.getElementById('sim').textContent = `similarity: ${sim}%`;
             }
         });
 
+        async function calculateSimilarity(sentence1, sentence2) {
+            try {
+                const response = await fetch(`http://localhost:<%- portNumber %>/calculate-similarity`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ sentence1, sentence2 })
+                });
+                const data = await response.json();
+                if (data.error) {
+                    console.log("error calculating sim");
+                    throw new Error(data.error);
+                } else {
+                    let sim = data.similarity.toFixed(2);
+                    console.log("sim is: " + sim);
+                    return sim;
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                throw error;
+            }
+        }
+
         // Handle Try Again button click
         document.getElementById('tryAgainButton').addEventListener('click', function() {
-            console.log("=======");
+            document.getElementById('sim').textContent='';
             document.getElementById('customAlert').style.display = 'none'; // Hide modal
         });
 
@@ -217,6 +249,7 @@
             console.log("=======");
             window.location.href = 'http://localhost:<%- portNumber %>'; // Redirect to home page
         });
+        
         
     </script>
 </body>

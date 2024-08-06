@@ -42,6 +42,7 @@
     <div id="customAlert" class="modal">
         <div class="modal-content">
             <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
+            <p id="sim"></p>
             <button id="tryAgainButton">Try Again</button>
             <button id="goHomeButton">Go Back to Home</button>
         </div>
@@ -56,6 +57,7 @@
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
         let player;
+        const portNumber = "<%= portNumber %>";
         let songInfoArray = <%- JSON.stringify(songInfoArray) %>;
         let startTime = songInfoArray[0].startTime;
         let quizStartTime = songInfoArray[0].quizStart;
@@ -177,11 +179,24 @@
             quizSubmitted = true;
             player.playVideo();
         });
+        
+        // Function to encode special characters to HTML entities
+        function encodeForHtml(str) {
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&#34;')
+                      .replace(/'/g, '&#39;')
+                      .replace(/\//g, '&#x2F;')
+                      .replace(/`/g, '&#x60;')
+                      .replace(/=/g, '&#x3D;');
+        }
 
-        let solutionData = songInfoArray[0].solution;
+        let solutionData = encodeForHtml(songInfoArray[0].solution).toLowerCase();
         console.log("=======solution in ejs: " + solutionData)
         document.getElementById('userForm').addEventListener('submit', function(event) {
-            const userInput = document.getElementById('inputField').value;
+            let userInput = document.getElementById('inputField').value;
+            userInput = encodeForHtml(userInput).toLowerCase();
             if (userInput !== solutionData) {
                 console.log("==========got it wrong")
                 console.log("=========correct answer: " + solutionData)
@@ -197,6 +212,7 @@
         });
 
         document.getElementById('tryAgainButton').addEventListener('click', function() {
+            document.getElementById('sim').textContent='';
             document.getElementById('customAlert').style.display = 'none';
         });
 

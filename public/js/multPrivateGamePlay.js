@@ -51,7 +51,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 quizSubmitted = false;
                 playRequested = false;
 
-                solutionData = songInfoArray[new_round - 1].solution;
+                solutionData = encodeForHtml(songInfoArray[new_round - 1].solution).toLowerCase();
 
                 // Check if a player instance already exists
                 if (player && player.destroy) {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 quizSubmitted = false;
                 playRequested = false;
 
-                solutionData = songInfoArray[0].solution;
+                solutionData = encodeForHtml(songInfoArray[0].solution).toLowerCase();
                 // Check if a player instance already exists
                 if (player && player.destroy) {
                     player.destroy();
@@ -138,19 +138,55 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    form.onsubmit = event => {
+    form.onsubmit = async function(event) {
         event.preventDefault();
+        //calculate similarity
+        let lowercasedUserInput = encodeForHtml(input.value).toLowerCase();
+        let sim;
+        try {
+            sim = await calculateSimilarity(lowercasedUserInput, solutionData);
+            console.log("sim: " + sim);
+        } catch (error) {
+            console.log("error when calculating sim")
+        }
+        console.log("sim: " + sim);
+        document.getElementById('sim').textContent = `similarity: ${sim}%`;
+
         console.log('======solutionData: ' + solutionData);
-        console.log('======unserInput: ' + input.value);
-        if (input.value) {
-            if (input.value === solutionData) { //game not ended yet. need to continue to next round.
+        console.log('======unserInput: ' + lowercasedUserInput);
+        if (lowercasedUserInput) {
+            if (lowercasedUserInput === solutionData) { //game not ended yet. need to continue to next round.
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'correct', winner: index }));
             } else {
-                ws.send(JSON.stringify({ type: 'regular', message: input.value }));
+                ws.send(JSON.stringify({ type: 'regular', message: `${input.value} (${sim}%)` }));
             }
         }
     };
+
+    async function calculateSimilarity(sentence1, sentence2) {
+        try {
+            const response = await fetch(`http://localhost:${portNumber}/calculate-similarity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sentence1, sentence2 })
+            });
+            const data = await response.json();
+            if (data.error) {
+                console.log("error calculating sim");
+                throw new Error(data.error);
+            } else {
+                let sim = data.similarity.toFixed(2);
+                console.log("sim is: " + sim);
+                return sim;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            throw error;
+        }
+    }
 
     function startGame() {
         console.log("Game Started!");

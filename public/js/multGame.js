@@ -47,21 +47,59 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    form.onsubmit = event => {
+    form.onsubmit = async function(event) {
         event.preventDefault();
         let userInput = document.getElementById('inputField').value;
-        userInput = encodeForHtml(userInput);
+        userInput = encodeForHtml(userInput).toLowerCase();
         console.log("=========correct answer: " + solutionData)
         console.log("=========user answer: " + (userInput))
+
+        //calculate similarity
+        let sim;
+        try {
+            sim = await calculateSimilarity(userInput, solutionData);
+            console.log("sim: " + sim);
+        } catch (error) {
+            console.log("error when calculating sim")
+        }
+        console.log("sim: " + sim);
+        document.getElementById('sim').textContent = `similarity: ${sim}%`;
+
         if (userInput) {
             if (userInput === solutionData) {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
             } else {
-                ws.send(input.value);
+                ws.send(`${input.value} (${sim}%)`);
             }
         }
+
+        
     };
+
+    async function calculateSimilarity(sentence1, sentence2) {
+        try {
+            const response = await fetch(`http://localhost:${portNumber}/calculate-similarity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ sentence1, sentence2 })
+            });
+            const data = await response.json();
+            if (data.error) {
+                console.log("error calculating sim");
+                throw new Error(data.error);
+            } else {
+                let sim = data.similarity.toFixed(2);
+                console.log("sim is: " + sim);
+                return sim;
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            throw error;
+        }
+    }
 
     function startGame() {
         console.log("Game Started!");

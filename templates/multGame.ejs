@@ -44,6 +44,7 @@
     <div id="customAlert" class="modal">
         <div class="modal-content">
             <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
+            <p id="sim"></p>
             <button id="tryAgainButton">Try Again</button>
             <button id="goHomeButton">Go Back to Home</button>
         </div>
@@ -61,6 +62,7 @@
         const startTime = "<%= startTime %>";
         const quizStartTime = "<%= quizStartTime %>";
         const quizEndTime = "<%= quizEndTime %>";
+        const portNumber = "<%= portNumber %>";
         let quizStarted = false;
         let quizSubmitted = false;
         let playRequested = false;
@@ -187,12 +189,12 @@
                       .replace(/=/g, '&#x3D;');
         }
 
-        const solutionData = "<%- solution %>";
+        const solutionData = "<%- solution %>".toLowerCase();
         console.log("=======solution: " + solutionData);
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             let userInput = document.getElementById('inputField').value;
-            userInput = encodeForHtml(userInput);
+            userInput = encodeForHtml(userInput).toLowerCase();
             console.log("=======userInput: " + userInput);
             if (userInput !== solutionData) {
                 console.log("==========got it wrong")
@@ -204,7 +206,10 @@
             }
         });
 
+        
+
         document.getElementById('tryAgainButton').addEventListener('click', function() {
+            document.getElementById('sim').textContent='';
             document.getElementById('customAlert').style.display = 'none';
         });
 

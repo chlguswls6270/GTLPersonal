@@ -4,15 +4,14 @@ const { createServer } = require('http');
 const express = require("express");   /* Accessing express module */
 const bodyParser = require("body-parser");
 const app = express();  /* app is a request handler function */
-const axios = require('axios');
 const querystring = require('querystring');
 const portNumber = 5001;
 const WebSocket = require('ws');
-const tsParticles = require("@tsparticles/engine");
 require("dotenv").config({ path: path.resolve(__dirname, 'env_var_folder/.env') })
 const CLIENT_ID = process.env.CLIENT_ID;
-// const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const JWT_SECRET = process.env.JWT_SECRET; // Use a secure key for signing JWT
+const { exec } = require('child_process');
+
 
 const server = createServer(app);
 
@@ -35,6 +34,25 @@ app.use(bodyParser.urlencoded({extended:false}));
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 
+app.post('/calculate-similarity', (req, res) => {
+    const { sentence1, sentence2 } = req.body;
+
+    if (!sentence1 || !sentence2) {
+        return res.status(400).send({ error: 'Both sentences are required' });
+    }
+
+    const command = `python3 judger.py "${sentence1}" "${sentence2}"`;
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            return res.status(500).send({ error: error.message });
+        }
+        if (stderr) {
+            return res.status(500).send({ error: stderr });
+        }
+        console.log("sim: " + parseFloat(stdout.trim()));
+        res.send({ similarity: parseFloat(stdout.trim()) });
+    });
+});
 
 app.get("/", async (request, response) => {
     
@@ -300,6 +318,7 @@ app.get('/multGame/:room', (req, res) => {
         portNumber: portNumber,
         objID: objID,
         solution: roomInfo.songInfo.solution,
+        portNumber:portNumber,
     };
     console.log("=============solution in server: " + roomInfo.songInfo.solution)
 
@@ -477,17 +496,22 @@ app.get('/multPrivateJoinRoom/:room', (req, res) => {
     //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = privateRoomMap.get(room);
-    console.log("room: " + room);
-    console.log("roomInfo: " + roomInfo);
-    console.log("songInfoArray: " + roomInfo.songInfoArray);
+    if (roomInfo) {
+        console.log("room: " + room);
+        console.log("roomInfo: " + roomInfo);
+        console.log("songInfoArray: " + roomInfo.songInfoArray);
 
-    const variables = {
-        portNumber: portNumber,
-        songInfoArray: roomInfo.songInfoArray,
-        room: room,
-    };
+        const variables = {
+            portNumber: portNumber,
+            songInfoArray: roomInfo.songInfoArray,
+            room: room,
+        };
 
-    res.render('multPrivateGamePlay', variables);
+        res.render('multPrivateGamePlay', variables);
+    } else {
+        res.render('invalidRoom', {result: "Room does not exist"});
+    }
+    
 });
 
 app.get('/multPrivateResult/:result/:winner/:rank', (req, res) => {
