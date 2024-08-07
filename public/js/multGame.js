@@ -37,14 +37,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const new_text = document.createTextNode(event.data)
             message.appendChild(new_text);
             messages.appendChild(message);
+
             scrollToBottom()
         } else {
             const blob = event.data;
-            blob.text().then(text => {
+            blob.text().then(async function(text) {
                 const message = document.createElement('div');
                 const new_text = document.createTextNode(text)
                 message.appendChild(new_text);
-                messages.appendChild(message)
+                messages.appendChild(message);
+
+                let sim;
+                try {
+                    sim = await calculateSimilarity(text, solutionData);
+                    console.log("sim: " + sim);
+                    new_text.textContent = `${text} (${sim})`;
+                } catch (error) {
+                    console.log("error when calculating sim")
+                }
             })
             scrollToBottom();
         }
@@ -52,7 +62,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function scrollToBottom() {
         const chatLog = document.getElementById('chat-log');
-        chatLog.scrollTop = chatLog.scrollHeight;
+        setTimeout(() => {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }, 500); // Adding a small delay to ensure the DOM is updated
     }
 
     form.onsubmit = async function(event) {
@@ -62,26 +74,47 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("=========correct answer: " + solutionData)
         console.log("=========user answer: " + (userInput))
         let currAnswer = latestAnswer;
-        //calculate similarity
-        let sim;
-        try {
-            sim = await calculateSimilarity(userInput, solutionData);
-            console.log("sim: " + sim);
-        } catch (error) {
-            console.log("error when calculating sim")
-        }
-        console.log("sim: " + sim);
-        document.getElementById('sim').textContent = `similarity: ${sim}%`;
+        
 
         if (userInput) {
             if (userInput === solutionData) {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
             } else {
-                ws.send(`${currAnswer} (${sim}%)`);
+                ws.send(`${currAnswer}`);
             }
         }
     };
+
+    /*
+    form.onsubmit = async function(event) {
+        event.preventDefault();
+        let userInput = document.getElementById('inputField').value;
+        userInput = encodeForHtml(userInput).toLowerCase();
+        console.log("=========correct answer: " + solutionData)
+        console.log("=========user answer: " + (userInput))
+        let currAnswer = latestAnswer;
+        //calculate similarity
+        // let sim;
+        try {
+            // sim = await calculateSimilarity(userInput, solutionData);
+            // console.log("sim: " + sim);
+        } catch (error) {
+            console.log("error when calculating sim")
+        }
+        // console.log("sim: " + sim);
+        // document.getElementById('sim').textContent = `similarity: ${sim}%`;
+
+        if (userInput) {
+            if (userInput === solutionData) {
+                console.log("=======user got it right!")
+                ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
+            } else {
+                ws.send(`${currAnswer}`);
+            }
+        }
+    };
+    */
 
     async function calculateSimilarity(sentence1, sentence2) {
         try {

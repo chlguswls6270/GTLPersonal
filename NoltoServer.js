@@ -153,10 +153,15 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', async (req, 
 });
 
 app.get("/addGame", (request, response) => {
-    let portNumber_template = portNumber;
+    let portTemp;
+    if (port) {
+        portTemp = port;
+    } else {
+        portTemp = `http://localhost:${portNumber}`
+    }
     
     const variables = {
-        portNumber: portNumber_template
+        port: portTemp,
     };
       /* Generating the HTML using welcome template */
 
@@ -524,7 +529,7 @@ app.get('/multPrivateJoinRoom/:room', (req, res) => {
         console.log("songInfoArray: " + roomInfo.songInfoArray);
 
         const variables = {
-            portTemp,
+            port: portTemp,
             songInfoArray: roomInfo.songInfoArray,
             room: room,
         };

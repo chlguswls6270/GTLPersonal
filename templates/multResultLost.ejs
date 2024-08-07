@@ -16,8 +16,8 @@
             margin: 0;
             overflow: hidden;
             height: 100vh;
-    color:white;
-    background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
+            color:white;
+            background-image: linear-gradient(to bottom, #1f1f1f 10%, #1d1d1d 20%, #000000 50%);
         }
         h1 {
             font-size: 6rem;
@@ -39,8 +39,13 @@
             font-size: 1em;
             z-index: 2;
             border-radius: 5px;
-
         }
+
+        button:hover {
+            color: black;
+            background-color: white;
+        }
+
         #tsparticles {
             position: fixed; /* Use fixed to keep it in the background */
             width: 100%;
@@ -63,6 +68,7 @@
 </head>
 <body>
     <div id="text">
+        <p>if you are logged in,</p>
         <p>score went down by: <%- scoreChange -%></p>
         <h1>you lose...</h1>
     </div>

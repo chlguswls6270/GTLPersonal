@@ -23,12 +23,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const new_text = document.createTextNode(data.message);
                 message.appendChild(new_text);
                 messages.appendChild(message);
+                scrollToBottom()
             } else if (data.type === 'lobby-exit') {
                 //logic for ending the game
                 const message = document.createElement('div');
                 const new_text = document.createTextNode('lobby disappeared!!');
                 message.appendChild(new_text);
                 messages.appendChild(message);
+                scrollToBottom()
             } else if (data.type === 'index') {
                 index = data.idx
                 const message = document.createElement('div');
@@ -138,6 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
+
+    function scrollToBottom() {
+        const chatLog = document.getElementById('chat-log');
+        setTimeout(() => {
+            chatLog.scrollTop = chatLog.scrollHeight;
+        }, 500); // Adding a small delay to ensure the DOM is updated
+    }
 
     form.onsubmit = async function(event) {
         event.preventDefault();
