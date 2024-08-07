@@ -67,6 +67,7 @@
         let quizStarted = false;
         let quizSubmitted = false;
         let playRequested = false;
+        let latestAnswer = '';
 
         function onYouTubeIframeAPIReady() {
             console.log('YouTube IFrame API is ready');
@@ -195,6 +196,7 @@
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             let userInput = document.getElementById('inputField').value;
+            latestAnswer = userInput;
             userInput = encodeForHtml(userInput).toLowerCase();
             console.log("=======userInput: " + userInput);
             if (userInput !== solutionData) {

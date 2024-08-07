@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
         userInput = encodeForHtml(userInput).toLowerCase();
         console.log("=========correct answer: " + solutionData)
         console.log("=========user answer: " + (userInput))
-
+        let currAnswer = latestAnswer;
         //calculate similarity
         let sim;
         try {
@@ -71,7 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
             } else {
-                ws.send(`${input.value} (${sim}%)`);
+                ws.send(`${currAnswer} (${sim}%)`);
             }
         }
     };
