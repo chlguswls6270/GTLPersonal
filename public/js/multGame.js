@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const room = window.location.pathname.split('/')[2];
     console.log("room number game.js: " + room);
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}://${location.host}/single-public?room=${room}`);
+    const ws = new WebSocket(`${protocol}//${location.host}/single-public?room=${room}`);
     console.log("====chlguswls");
     const form = document.getElementById('userForm');
     const input = document.getElementById('inputField');
@@ -74,8 +74,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ws.send(`${input.value} (${sim}%)`);
             }
         }
-
-        
     };
 
     async function calculateSimilarity(sentence1, sentence2) {
