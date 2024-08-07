@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
     const room = window.location.pathname.split('/')[2];
     console.log("room number game.js: " + room);
-    const ws = new WebSocket(`ws://${location.host}/mult-private-play?room=${room}`);
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}/mult-private-play?room=${room}`);
     console.log("====chlguswls");
     const form = document.getElementById('userForm');
     const input = document.getElementById('inputField');
@@ -166,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function calculateSimilarity(sentence1, sentence2) {
         try {
-            const response = await fetch(`http://localhost:${portNumber}/calculate-similarity`, {
+            const response = await fetch(`${port}/calculate-similarity`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

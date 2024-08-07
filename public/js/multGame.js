@@ -36,7 +36,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const message = document.createElement('div');
             const new_text = document.createTextNode(event.data)
             message.appendChild(new_text);
-            messages.appendChild(message)
+            messages.appendChild(message);
+            scrollToBottom()
         } else {
             const blob = event.data;
             blob.text().then(text => {
@@ -45,8 +46,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 message.appendChild(new_text);
                 messages.appendChild(message)
             })
+            scrollToBottom();
         }
     };
+
+    function scrollToBottom() {
+        const chatLog = document.getElementById('chat-log');
+        chatLog.scrollTop = chatLog.scrollHeight;
+    }
 
     form.onsubmit = async function(event) {
         event.preventDefault();

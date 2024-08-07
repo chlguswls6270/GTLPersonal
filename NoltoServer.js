@@ -510,13 +510,21 @@ app.get('/multPrivateJoinRoom/:room', (req, res) => {
     //CHANGE TO /multgame/:room LATER. CONFUSING FOR BROWSER.
     let room = req.params.room;
     let roomInfo = privateRoomMap.get(room);
+
+    let portTemp;
+    if (port) {
+        portTemp = port;
+    } else {
+        portTemp = `http://localhost:${portNumber}`
+    }
+
     if (roomInfo) {
         console.log("room: " + room);
         console.log("roomInfo: " + roomInfo);
         console.log("songInfoArray: " + roomInfo.songInfoArray);
 
         const variables = {
-            portNumber: portNumber,
+            portTemp,
             songInfoArray: roomInfo.songInfoArray,
             room: room,
         };

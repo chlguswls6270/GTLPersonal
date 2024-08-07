@@ -2,7 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log("DOMContentLoaded event fired");
     const room = window.location.pathname.split('/')[2];
     console.log("room number game.js: " + room);
-    const ws = new WebSocket(`ws://${location.host}/mult-private-lobby?room=${room}`);
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const ws = new WebSocket(`${protocol}//${location.host}/mult-private-lobby?room=${room}`);
     console.log("====chlguswls");
     // const form = document.getElementById('userForm');
     // const input = document.getElementById('inputField');
