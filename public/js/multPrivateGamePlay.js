@@ -152,15 +152,15 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
         //calculate similarity
         let lowercasedUserInput = encodeForHtml(input.value).toLowerCase();
-        let sim;
-        try {
-            sim = await calculateSimilarity(lowercasedUserInput, solutionData);
-            console.log("sim: " + sim);
-        } catch (error) {
-            console.log("error when calculating sim")
-        }
-        console.log("sim: " + sim);
-        document.getElementById('sim').textContent = `similarity: ${sim}%`;
+        // let sim;
+        // try {
+        //     sim = await calculateSimilarity(lowercasedUserInput, solutionData);
+        //     console.log("sim: " + sim);
+        // } catch (error) {
+        //     console.log("error when calculating sim")
+        // }
+        // console.log("sim: " + sim);
+        // document.getElementById('sim').textContent = `similarity: ${sim}%`;
 
         console.log('======solutionData: ' + solutionData);
         console.log('======unserInput: ' + lowercasedUserInput);
@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("=======user got it right!")
                 ws.send(JSON.stringify({ type: 'correct', winner: index }));
             } else {
-                ws.send(JSON.stringify({ type: 'regular', message: `${input.value} (${sim}%)` }));
+                ws.send(JSON.stringify({ type: 'regular', message: `${input.value}` }));
             }
         }
     };

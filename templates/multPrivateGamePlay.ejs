@@ -42,7 +42,6 @@
     <div id="customAlert" class="modal">
         <div class="modal-content">
             <p id="failMessage">Incorrect solution. Please try again or go back to home.</p>
-            <p id="sim"></p>
             <button id="tryAgainButton">Try Again</button>
             <button id="goHomeButton">Go Back to Home</button>
         </div>
@@ -212,7 +211,6 @@
         });
 
         document.getElementById('tryAgainButton').addEventListener('click', function() {
-            document.getElementById('sim').textContent='';
             document.getElementById('customAlert').style.display = 'none';
         });
 

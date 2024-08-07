@@ -47,14 +47,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 message.appendChild(new_text);
                 messages.appendChild(message);
 
-                let sim;
-                try {
-                    sim = await calculateSimilarity(text, solutionData);
-                    console.log("sim: " + sim);
-                    new_text.textContent = `${text} (${sim})`;
-                } catch (error) {
-                    console.log("error when calculating sim")
-                }
+                //FOR NOW, NOT FEASIBLE BECAUSE IT TAKES TOO LONG & MEMORY HEAVY
+                // let sim;
+                // try {
+                //     sim = await calculateSimilarity(text, solutionData);
+                //     console.log("sim: " + sim);
+                //     new_text.textContent = `${text} (${sim})`;
+                // } catch (error) {
+                //     console.log("error when calculating sim")
+                // }
             })
             scrollToBottom();
         }
