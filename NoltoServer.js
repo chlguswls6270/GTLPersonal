@@ -316,15 +316,23 @@ app.get('/multGame/:room', (req, res) => {
     const startTime = roomInfo.songInfo.startTime;
     const quizStart = roomInfo.songInfo.quizStart;
     const quizEnd = roomInfo.songInfo.quizEnd;
+
+    let portTemp;
+    if (port) {
+        portTemp = port;
+    } else {
+        portTemp = `http://localhost:${portNumber}`
+    }
+
     const variables = {
         id: roomInfo.songInfo.youtubeURL,
         startTime: startTime,
         quizStartTime: quizStart,
         quizEndTime: quizEnd,
-        portNumber: portNumber,
+        port: portTemp,
         objID: objID,
         solution: roomInfo.songInfo.solution,
-        portNumber:portNumber,
+        portNumber: portNumber,
     };
     console.log("=============solution in server: " + roomInfo.songInfo.solution)
 

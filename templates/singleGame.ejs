@@ -234,8 +234,8 @@
 
         // Handle Try Again button click
         document.getElementById('tryAgainButton').addEventListener('click', function() {
-            document.getElementById('sim').textContent='';
             document.getElementById('customAlert').style.display = 'none'; // Hide modal
+            document.getElementById('sim').textContent='similarity: loading...';
         });
 
         // Handle Go Back to Home button click

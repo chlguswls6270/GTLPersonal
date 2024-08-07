@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function calculateSimilarity(sentence1, sentence2) {
         try {
-            const response = await fetch(`http://localhost:${portNumber}/calculate-similarity`, {
+            const response = await fetch(`${port}/calculate-similarity`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
