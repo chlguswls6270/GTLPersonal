@@ -53,16 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.type === 'last-winner') {
             console.log("I'm in lobby.js last round finished")
             users.set(data.winner, users.get(data.winner) + 1)
-            // const row = userTable.rows[data.winner];
-            // const cell = row.cells[1];
-            // //console.log("last score of the winner: " + users.get(data.winner));
 
-            // cell.textContent = users.get(data.winner);
-
-            const winner = getKeyWithGreatestValue(users);
-            // // alert(`The winner is: ${winner}P`);
-            // const alert = document.getElementById('winnerAlert');
-            // alert.textContent = `The winner is: ${winner}P`
+            const winner = getKeysWithGreatestValue(users);
 
             //need to send signal so users redirect to other page.
             ws.send(JSON.stringify({ type: 'end', winner: winner, users: Array.from(users.entries()) }));
@@ -149,6 +141,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         return maxKey;
+    }
+
+    function getKeysWithGreatestValue(users) {
+        // Convert the object to an array of key-value pairs
+        const entries = Array.from(users.entries());
+        console.log(entries);
+        
+        let maxValue = -Infinity;
+        let keysWithMaxValue = [];
+    
+        // Iterate through the array of key-value pairs
+        for (const [key, value] of entries) {
+            if (value > maxValue) {
+                // Found a new maximum value, reset the array
+                maxValue = value;
+                keysWithMaxValue = [key];
+            } else if (value === maxValue) {
+                // Found another key with the same maximum value, add to the array
+                keysWithMaxValue.push(key);
+            }
+        }
+    
+        return keysWithMaxValue;
     }
 
     function getRankedUsers(map) {

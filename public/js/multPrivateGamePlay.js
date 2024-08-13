@@ -219,7 +219,18 @@ document.addEventListener('DOMContentLoaded', () => {
         // Sort the array based on the values in descending order
         usersArray.sort((a, b) => b[1] - a[1]);
     
-        // Find the position of the given user
+        // Get the highest value in the sorted array
+        const highestValue = usersArray[0][1];
+    
+        // Check if the userName is one of the users with the highest value
+        const isUserWinner = usersArray.some(user => user[0] === userName && user[1] === highestValue);
+    
+        // If the user is one of the winners, return 1
+        if (isUserWinner) {
+            return 1;
+        }
+    
+        // Otherwise, find the user's rank in the array
         const rank = usersArray.findIndex(user => user[0] === userName) + 1;
     
         return rank;

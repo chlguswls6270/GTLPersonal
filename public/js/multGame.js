@@ -10,16 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const messages = document.getElementById('chat-log');
 
     ws.onmessage = (event) => {
+        //classify message and respond accordingly
         if (isValidJSON(event.data)) {
             const data = JSON.parse(event.data);
-            if (data.type === 'start') {
+            if (data.type === 'start') { //start game
                 console.log("starting the game");
                 startGame();
-            } else if (data.type === 'end') {
-                if (data.message === 'you lost!') {
+            } else if (data.type === 'end') { //end game. when one of the user gets it right
+                if (data.message === 'you lost!') { //when other user gets it right, redirect
                     console.log("game ended. redirecting to result page")
                     window.location.href = '/multResult/lost/' + data.score
-                } else if (data.message === 'you won!') {
+                } else if (data.message === 'you won!') { //when user gets it right, redirect
                     console.log("game ended. redirecting to result page")
                     window.location.href = '/multResult/won/' + data.score
                 }
@@ -46,16 +47,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const new_text = document.createTextNode(text)
                 message.appendChild(new_text);
                 messages.appendChild(message);
-
-                //FOR NOW, NOT FEASIBLE BECAUSE IT TAKES TOO LONG & MEMORY HEAVY
-                // let sim;
-                // try {
-                //     sim = await calculateSimilarity(text, solutionData);
-                //     console.log("sim: " + sim);
-                //     new_text.textContent = `${text} (${sim})`;
-                // } catch (error) {
-                //     console.log("error when calculating sim")
-                // }
             })
             scrollToBottom();
         }
@@ -86,36 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     };
-
-    /*
-    form.onsubmit = async function(event) {
-        event.preventDefault();
-        let userInput = document.getElementById('inputField').value;
-        userInput = encodeForHtml(userInput).toLowerCase();
-        console.log("=========correct answer: " + solutionData)
-        console.log("=========user answer: " + (userInput))
-        let currAnswer = latestAnswer;
-        //calculate similarity
-        // let sim;
-        try {
-            // sim = await calculateSimilarity(userInput, solutionData);
-            // console.log("sim: " + sim);
-        } catch (error) {
-            console.log("error when calculating sim")
-        }
-        // console.log("sim: " + sim);
-        // document.getElementById('sim').textContent = `similarity: ${sim}%`;
-
-        if (userInput) {
-            if (userInput === solutionData) {
-                console.log("=======user got it right!")
-                ws.send(JSON.stringify({ type: 'end', message: "game ended!" }));
-            } else {
-                ws.send(`${currAnswer}`);
-            }
-        }
-    };
-    */
 
     async function calculateSimilarity(sentence1, sentence2) {
         try {
