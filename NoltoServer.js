@@ -119,36 +119,44 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', async (req, 
     console.log("========start time: " + startTime)
     console.log("-=======start time param: " + req.params.startTime)
     const objID = req.params.objID;
-    const objId = new ObjectId(objID);
+    // const objId = new ObjectId(objID);
 
-    //find solution in mongodb
-    const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-    const result = await client.db(databaseAndCollection.db)
-        .collection(databaseAndCollection.collection)
-        .findOne(
-            { _id: objId }
-        );
-    let solution = result.lyrics;
-    solution = encodeForHtml(solution);
-    console.log("result in app.get: " + result);
-    console.log("solution in app.get: " + solution);
-    let portTemp;
-    if (port) {
-        portTemp = port;
+    if (ObjectId.isValid(objID)) {
+        const objId = new ObjectId(objID);
+        //find solution in mongodb
+        const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
+        const result = await client.db(databaseAndCollection.db)
+            .collection(databaseAndCollection.collection)
+            .findOne(
+                { _id: objId }
+            );
+        let solution = result.lyrics;
+        solution = encodeForHtml(solution);
+        console.log("result in app.get: " + result);
+        console.log("solution in app.get: " + solution);
+        let portTemp;
+        if (port) {
+            portTemp = port;
+        } else {
+            portTemp = `http://localhost:${portNumber}`
+        }
+        const variables = {
+            id: id, 
+            startTime: startTime, 
+            quizStartTime: quizStart, 
+            quizEndTime: quizEnd,
+            port: portTemp,
+            objID: objID,
+            solution: solution,
+        };
+
+        res.render('singleGame', variables);
     } else {
-        portTemp = `http://localhost:${portNumber}`
+        // Handle invalid ID
+        res.status(400).send('Invalid ID format');
     }
-    const variables = {
-        id: id, 
-        startTime: startTime, 
-        quizStartTime: quizStart, 
-        quizEndTime: quizEnd,
-        port: portTemp,
-        objID: objID,
-        solution: solution,
-    };
 
-    res.render('singleGame', variables);
+    
     
 });
 
