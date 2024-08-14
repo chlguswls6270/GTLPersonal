@@ -227,10 +227,23 @@
                 document.getElementById('sim').textContent = `similarity: ${sim}%`;
             }
         });
-
+        function getRootUrl() {
+            const url = window.location;
+            const protocol = url.protocol; // 'http:' or 'https:'
+            const host = url.host;         // 'example.com' or 'example.com:3000'
+            return `${protocol}//${host}`;
+        }
+        let currUrl = getRootUrl()
         async function calculateSimilarity(sentence1, sentence2) {
             try {
-                const response = await fetch(`<%- port -%>/calculate-similarity`, {
+                // const response = await fetch(`<%- port -%>/calculate-similarity`, {
+                //     method: 'POST',
+                //     headers: {
+                //         'Content-Type': 'application/json'
+                //     },
+                //     body: JSON.stringify({ sentence1, sentence2 })
+                // });
+                const response = await fetch(`${currUrl}/calculate-similarity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
