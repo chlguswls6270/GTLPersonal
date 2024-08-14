@@ -5,7 +5,7 @@ const express = require("express");   /* Accessing express module */
 const bodyParser = require("body-parser");
 const app = express();  /* app is a request handler function */
 const querystring = require('querystring');
-const portNumber = 5001;
+const portNumber = 10000;
 const port = process.env.URL;
 const WebSocket = require('ws');
 require("dotenv").config({ path: path.resolve(__dirname, 'env_var_folder/.env') })
