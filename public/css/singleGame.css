@@ -135,6 +135,8 @@ body {
 	grid-row-end: 3;
 }
 
+
+
 .home-button {
     height: 100%;
     width: 100%;
@@ -145,13 +147,6 @@ body {
 	grid-row-start: 2;
 	grid-row-end: 3;
 }
-
-/* .buttons-second-row {
-    grid-column-start: 1;
-	grid-column-end: 5;
-	grid-row-start: 3;
-	grid-row-end: 4;
-} */
 
 .formContainer {
     height: 100%;

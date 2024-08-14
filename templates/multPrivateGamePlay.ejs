@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/css/multGame.css">
     <link href="https://fonts.googleapis.com/css2?family=Gugi&family=Sixtyfour&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <title>Game Page</title>
 </head>
 <body>
@@ -20,19 +21,37 @@
 
         <div id="chat-log"></div>
 
-        <div class="playButton"><button id="playButton">Play</button></div>
-        <div class="pauseButton"><button id="pauseButton">Pause</button></div>
-        <div class="backToQuizButton"><button id="backToQuizButton">Back to Quiz</button></div>
+        <div class="playButton">
+            <button id="playButton">
+                <i class="fas fa-play"></i>
+            </button>
+        </div>
+        <div class="pauseButton">
+            <button id="pauseButton">
+                <i class="fas fa-pause"></i>
+            </button>
+        </div>
+        <div class="backToQuizButton">
+            <button id="backToQuizButton">
+                <i class="fa-solid fa-arrow-rotate-left"></i>
+            </button>
+        </div>
 
         <div class="home-button">
-            <button id="homeButton">Home</button>
+            <button id="homeButton">
+                <i class="fa-solid fa-house"></i>
+            </button>
         </div>
 
         <div class="formContainer" id="formContainer">
             <form id="userForm">
                 <div class="input-submit">
                     <div class="inputField"><input type="text" id="inputField" name="userAttempt" placeholder="Enter text here"></div>
-                    <div class="submitButton"><input type="submit" id="submitButton" value="Submit"></div>
+                    <div class="submitButton">
+                        <button id="submitButton" type="submit">
+                            <i class="fa-solid fa-arrow-up-long"></i>
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -96,31 +115,31 @@
             const tryAgainButton = document.getElementById('tryAgainButton');
 
             playButton.addEventListener('click', () => {
-                player.seekTo(startTime);
                 player.playVideo();
             });
 
             pauseButton.addEventListener('click', () => {
-                player.pauseVideo();
+                if(quizStarted) {
+                    player.pauseVideo();
+                }
             });
 
             backToQuizButton.addEventListener('click', () => {
-                player.seekTo(quizStartTime);
-                player.playVideo();
-                // document.getElementById('pauseOverlay').style.display = 'none';
+                if(quizStarted) {
+                    player.seekTo(quizStartTime);
+                    player.playVideo();
+                }
             });
 
             tryAgainButton.addEventListener('click', () => {
                 quizSubmitted = false;
                 player.seekTo(quizStartTime);
                 player.playVideo();
-                // document.getElementById('pauseOverlay').style.display = 'none';
             });
 
             if (playRequested) {
                 player.playVideo();
             }
-            //player.playVideo();
         }
 
         let checkTime;
