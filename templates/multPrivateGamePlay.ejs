@@ -211,9 +211,9 @@
         }
 
         let solutionData = encodeForHtml(songInfoArray[0].solution).toLowerCase();
-        console.log("=======solution in ejs: " + solutionData)
+        // console.log("=======solution in ejs: " + solutionData)
         document.getElementById('userForm').addEventListener('submit', function(event) {
-            let userInput = document.getElementById('inputField').value;
+            let userInput = document.getElementById('inputField').value;x
             userInput = encodeForHtml(userInput).toLowerCase();
             if (userInput !== solutionData) {
                 console.log("==========got it wrong")

@@ -323,3 +323,16 @@ input[type="submit"]:hover {
     background-color: white;
     color: black;
 }
+
+.count-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Adjust spacing between the arrow and the text */
+    /* margin-top: 10px; Optional: Add space between the lines */
+}
+
+#waitMessageUserCount {
+    margin: 0;
+}
+

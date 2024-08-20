@@ -651,7 +651,17 @@ function handleSinglePublic(ws, room) {
     const roomData = roomMap.get(room);
     roomData.clients.add(ws);  // Add the client to the room's set
     console.log("room name: " + room)
-    console.log("number of clients: " + roomData.clients.size)
+    console.log("number of clients: " + roomData.clients.size);
+    //send new number of users in room
+    let num = roomData.clients.size;
+    roomData.clients.forEach(async client => {
+        if (client.readyState === WebSocket.OPEN) {
+            console.log("===========sending lost messge to ws's")
+            client.send(JSON.stringify({ type: 'user-num', num: num, total: num_max_user}));
+        }
+    });
+
+    //react to messages
     ws.on('message', (message) => {
         console.log("====is it end message?" + isValidJSON(message))
         if (isValidJSON(message)) {
@@ -689,7 +699,7 @@ function handleSinglePublic(ws, room) {
 
     if (roomData.clients.size >= 2) {
         const timeElapsed = Date.now() - roomData.startTime;
-        if (timeElapsed >= 10000 || roomData.clients.size >= num_max_user) {
+        if (timeElapsed >= 20000 || roomData.clients.size >= num_max_user) {
             if (roomData.timer) {
                 clearTimeout(roomData.timer);
             }

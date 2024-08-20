@@ -23,13 +23,26 @@
             <div id="custom-signin"></div>
         </div>
         <div class="upper-row">
-            <button id="start">Start Game</button>
-            <button id="multGame">Single-Online</button>
-            <button id="multPrivateGame">Multi-Private</button>
+            <button id="start">
+                Practice Solo<br>
+                <p>Practice on your own</p>
+                <p>혼자 연습하기</p>
+            </button>
+            <button id="multGame">
+                Random Match<br>
+                <p>Compete against strangers online</p>
+                <p>랜덤 매칭</p>
+            </button>
+            <button id="multPrivateGame">
+                Play with Friends<br>
+                <p>Create a private room and invite friends</p>
+                <p>방 만들어서 친구와 게임하기</p>
+            </button>
         </div>
         <div class="lower-row">
             <button id="addGame">Add Game</button>
             <button id="ranking">Ranking</button>
+            <button id="form">Feedback</button>
         </div>
     </div>
 
@@ -166,6 +179,10 @@
 
         document.getElementById('ranking').addEventListener('click', function() {
             window.location.href = '/ranking';  // Change this URL to the desired page
+        });
+
+        document.getElementById('form').addEventListener('click', function() {
+            window.location.href = 'https://docs.google.com/forms/d/e/1FAIpQLSdPPEttuF8o3Sg9QiEe5aD6o1Kway06wynbjMkUByGerPlfEA/viewform?usp=sf_link';  // Change this URL to the desired page
         });
 
         function base64UrlDecode(str) {

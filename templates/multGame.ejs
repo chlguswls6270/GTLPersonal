@@ -70,7 +70,11 @@
 
     <div id="gameDidNotStart" class="modal">
         <div class="modal-content">
-            <p id="failMessage">Game did not start yet<br>Wait for other users</p>
+            <p id="waitMessage">Wait for other users</p>
+            <div class="count-line">
+                <i class="fa-solid fa-user"></i>
+                <p id="waitMessageUserCount">0 / 5</p>
+            </div>
         </div>
     </div>
 
@@ -212,7 +216,7 @@
         }
 
         const solutionData = "<%- solution %>".toLowerCase();
-        console.log("=======solution: " + solutionData);
+        // console.log("=======solution: " + solutionData);
 
         document.getElementById('userForm').addEventListener('submit', function(event) {
             let userInput = document.getElementById('inputField').value;

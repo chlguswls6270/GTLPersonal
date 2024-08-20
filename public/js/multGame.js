@@ -8,6 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('userForm');
     const input = document.getElementById('inputField');
     const messages = document.getElementById('chat-log');
+    const waitMessageUserCount = document.getElementById('waitMessageUserCount')
 
     ws.onmessage = (event) => {
         //classify message and respond accordingly
@@ -32,6 +33,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (data.type === 'invalid-room') {
                 window.location.href = '/invalidRoom';
+            } else if (data.type === 'user-num') {
+                console.log("new-user!!")
+                console.log(`num of users: ${data.num}`);
+                console.log(`num of total users: ${data.total}`);
+                waitMessageUserCount.innerHTML = `${data.num} / ${data.total}`;
             }
         } else if (typeof event.data === 'string') {
             const message = document.createElement('div');

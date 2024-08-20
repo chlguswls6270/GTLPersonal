@@ -26,6 +26,11 @@ body {
     margin: 0;
 }
 
+p {
+    font-size: 1rem;
+    color: gray;
+}
+
 .button-container {
     display: flex;
     flex-direction: column;
@@ -43,12 +48,54 @@ body {
     gap: 10px;
 }
 
-.lower-row {
+.upper-row button {
     display: flex;
-    justify-content: space-evenly;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px; /* Adjust as needed */
+    width: 100%; /* Adjust as needed */
+    height: 100%; /* Adjust as needed */
+    cursor: pointer;
+}
+
+.upper-row button p {
+    margin: 5px 0 0 0;
+    font-size: 14px; /* Adjust the size of the subtext */
+    color: #cccccc; /* Slightly different color for subtext */
+}
+
+.upper-row button p:first-of-type {
+    margin-top: 10px; /* Add some space between the main text and the subtext */
+}
+
+.lower-row {
+    display: grid;
+    grid-template-columns: 3fr 3fr 1fr;
     align-items: center;
     flex: 1;
     gap: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+#addGame {
+    width: 100%;
+    height: 100%;
+    grid-column: 1 / 2; /* Position in the first column */
+}
+
+#ranking {
+    width: 100%;
+    height: 100%;
+    grid-column: 2 / 3; /* Position in the first column */
+}
+
+#form {
+    width: 100%;
+    height: 100%;
+    grid-column: 3 / 4; /* Position in the first column */
 }
 
 button {
@@ -69,17 +116,17 @@ button:hover {
 
 #start {
     flex: 1;
-    font-size: 3em;
+    font-size: 2em;
 }
 
 #multGame {
     flex: 1;
-    font-size: 3em;
+    font-size: 2em;
 }
 
 #multPrivateGame {
     flex: 1;
-    font-size: 3em;
+    font-size: 2em;
 }
 
 #addGame {
