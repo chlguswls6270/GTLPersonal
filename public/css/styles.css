@@ -252,9 +252,9 @@ button:hover {
     }
 
     button {
-        border: 5px solid white;
+        border: 2.5px solid white;
         color: white;
-        border-radius: 15px;
+        border-radius: 10px;
         transition: 0.3s;
     }
 }
