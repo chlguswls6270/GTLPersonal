@@ -103,7 +103,7 @@ button {
     height: 100%;
     cursor: pointer;
     background-color: #1B1B1B;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     transition: 0.3s;
@@ -227,6 +227,7 @@ button:hover {
         flex-direction: column;
         gap: 10px;
         width: 100%; /* Ensure the rows take up full width */
+        font-size: 2.5rem;
     }
 
     .upper-row button {
@@ -239,15 +240,22 @@ button:hover {
         aspect-ratio: 6 / 1 !important;
     }
     #addGame {
-        font-size: 1rem;
+        font-size: 2rem;
     }
     
     #ranking {
-        font-size: 1rem;
+        font-size: 2rem;
     }
     
     #form {
-        font-size: 1rem;
+        font-size: 2rem;
+    }
+
+    button {
+        border: 5px solid white;
+        color: white;
+        border-radius: 15px;
+        transition: 0.3s;
     }
 }
 
