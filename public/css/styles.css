@@ -227,7 +227,7 @@ button:hover {
         flex-direction: column;
         gap: 10px;
         width: 100%; /* Ensure the rows take up full width */
-        font-size: 2.5rem;
+        font-size: 1rem;
     }
 
     .upper-row button {
@@ -240,15 +240,15 @@ button:hover {
         aspect-ratio: 6 / 1 !important;
     }
     #addGame {
-        font-size: 2rem;
+        font-size: 1rem;
     }
     
     #ranking {
-        font-size: 2rem;
+        font-size: 1rem;
     }
     
     #form {
-        font-size: 2rem;
+        font-size: 1rem;
     }
 
     button {
