@@ -17,7 +17,6 @@ body {
     justify-content: center;
     align-items: center;
     flex: 1;
-    
     color: white;
 }
 
@@ -214,10 +213,18 @@ button:hover {
 @media only screen and (max-width: 768px), 
        only screen and (max-device-width: 768px),
        only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    .title-container {
+        flex: 1;
+    }
+    .title-container h1 {
+        font-size: 3em;
+        margin: 0;
+    }
     .button-container {
         overflow-x: auto;
         padding: 10px;
         gap: 10px;
+        flex: 2;
         display: flex;
         flex-direction: column;
     }
@@ -228,6 +235,11 @@ button:hover {
         gap: 10px;
         width: 100%; /* Ensure the rows take up full width */
         font-size: 1rem;
+    }
+
+    .lower-row {
+        flex-direction: row;
+        min-height: 60px;
     }
 
     .upper-row button {
