@@ -249,7 +249,7 @@ button:hover {
 
     .lower-row button {
         width: 100% !important;
-        aspect-ratio: 6 / 1 !important;
+        /* aspect-ratio: 6 / 1 !important; */
     }
     #addGame {
         font-size: 1rem;
