@@ -10,13 +10,15 @@
 </head>
 <body>
     <div class="container">
+        <div id="ad-container">
+            Ad
+        </div>
+
         <div id="player-container">
             <div id="player"></div>
             <div id="overlay"></div>
         </div>
-        <div id="ad-container">
-            Ad
-        </div>
+        
 
         <div class="playButton">
             <button id="playButton">
@@ -34,11 +36,6 @@
             </button>
         </div>
 
-        <div class="home-button">
-            <button id="homeButton">
-                <i class="fa-solid fa-house"></i>
-            </button>
-        </div>
         <div class="formContainer" id="formContainer">
             <form id="userForm" action="<%- port -%>/songList/game" method="post">
                 <div class="input-submit">
@@ -53,6 +50,13 @@
                 <input type="text" id="objID" name="objID" value="<%- objID -%>">
             </form>
         </div>
+
+        <div class="home-button">
+            <button id="homeButton">
+                <i class="fa-solid fa-house"></i>
+            </button>
+        </div>
+        
         <div class="countdown" id="countdown">Wait!</div>
     </div>
 

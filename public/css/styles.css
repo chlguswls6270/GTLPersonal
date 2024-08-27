@@ -164,15 +164,18 @@ button:hover {
     top: 70px;
     right: 10px;
     width: 200px;
-    background-color: transparent;
+    background-color: black;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
     overflow: hidden;
     z-index: 1000;
     border: 1px solid white;
-    color: white;
     border-radius: 5px;
     transition: 0.3s;
+}
+
+.card p {
+    color: white;
 }
 
 .card-content {
@@ -205,9 +208,6 @@ button:hover {
 #custom-signin {
     display: flex;
 }
-
-
-
 
 
 /* Mobile styles (for narrow screens) */
