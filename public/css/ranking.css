@@ -45,7 +45,7 @@ body {
     margin: 10px;
     padding: 10px;
     width: 100%;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     border-radius: 5px;
     box-sizing: border-box;
 }
@@ -69,19 +69,22 @@ body {
 }
 
 #rank-block {
+    display: flex;
     margin-right: 20px; /* Space between the rank block and info block */
 }
 
+#rank-block p {
+    margin: 2px 0; /* Reduce the top and bottom margins to bring them closer */
+}
+
 #info-block {
-    align-items: flex-start; /* Align text to the left */
+    display: flex; /* Flexbox layout for horizontal alignment */
+    align-items: start; /* Aligns items vertically centered */
+    gap: 5px;
 }
 
 #info-block p {
     margin: 0; /* Remove default margins for paragraphs */
-}
-
-#info-block #user-score {
-    margin-top: 5px; /* Small space between name and score */
 }
 
 
@@ -100,7 +103,7 @@ body {
     width: 100%;
     height: 100%;
     overflow-y: auto;
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     border-radius: 5px;
     box-shadow: 0 0 10px rgba(0,0,0,0.1);
     margin-bottom: 10px;
@@ -114,7 +117,7 @@ body {
     align-items: center;
     margin-bottom: 10px;
     padding: 10px;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 5px;
     width: 100%;
     box-sizing: border-box;
@@ -139,7 +142,8 @@ body {
 }
 
 .score {
-    font-size: 14px;}
+    font-size: 14px;
+}
 
 .rank {
     font-weight: bold;
@@ -156,7 +160,7 @@ button {
     padding: 10px 20px;
     font-size: 16px;
     cursor: pointer;
-    border: 1px solid white;
+    border: 2px solid white;
     background-color: transparent;
     border-radius: 5px;
     color: white;
@@ -166,4 +170,36 @@ button {
 button:hover {
     background-color: white;
     color: black;
+}
+
+
+/* Mobile styles (for narrow screens) */
+@media only screen and (max-width: 768px), 
+       only screen and (max-device-width: 768px),
+       only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+        body {
+            display: flex; /* Ensure body is a flex container */
+            flex-direction: column;
+            width: 100%;
+        } 
+        .container {
+            width: 100%;
+            gap: 10px
+        }
+
+        #profile-picture {
+            width: 80px;
+            height: 80px;
+        }
+
+        #rank-block, #info-block {
+            margin-right: 10px; /* Space between blocks */
+        }
+        #rank-block {
+            margin-right: 10px; /* Space between the rank block and info block */
+        }
+        .user-info {
+            width: 90%;
+        }
+
 }

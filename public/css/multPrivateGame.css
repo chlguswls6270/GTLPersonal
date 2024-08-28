@@ -48,7 +48,7 @@ button {
     width: 100%;
     cursor: pointer;
     background-color: #1B1B1B;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     transition: 0.3s;
@@ -65,8 +65,17 @@ input[type="text"] {
     padding: 10px;
     font-size: 2rem;
     width: 100%; /* Take full width of the grid column */
-    border: 1px solid white;
+    border: 2px solid white;
     border-radius: 5px;
     box-sizing: border-box;
     color: white;
 }
+
+/* Mobile styles (for narrow screens) */
+@media only screen and (max-width: 768px), 
+       only screen and (max-device-width: 768px),
+       only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+        #container {
+            width: 90%;
+        }
+       }

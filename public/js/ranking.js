@@ -18,7 +18,7 @@ function loadUserInfo() {
         console.log(userInfo.score);
         document.getElementById('profile-picture').src = userInfo.image;
         document.getElementById('user-name').textContent = userInfo.name;
-        document.getElementById('user-score').textContent = `${userInfo.score}`;
+        document.getElementById('user-score').textContent = `score: ${userInfo.score}`;
         document.getElementById('user-ranking').textContent = `${userInfo.rank}`;
         document.getElementById('user-info').style.display = 'flex';
     }

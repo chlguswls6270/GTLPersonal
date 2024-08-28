@@ -24,7 +24,7 @@ button {
     height: 100%;
     font-size: 1rem;
     color: white;
-    border: 1px solid white;
+    border: 2px solid white;
     border-radius: 5px;
 }
 
@@ -79,7 +79,7 @@ button:hover {
 #song-info {
     grid-column: 2 / 3;
     grid-row: 2 / 3;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     padding: 10px;
@@ -110,7 +110,7 @@ button:hover {
 }
 
 th, td {
-    border: 1px solid #ccc;
+    border: 2px solid #ccc;
     border-bottom: none; /* Thicker border between header and content */
     text-align: center;
     padding: 10px;
@@ -127,7 +127,7 @@ table tbody tr:last-child td {
     align-items: flex-start; /* Align to the top */
     border-collapse: separate; /* Ensures border radius works */
     width: 70%;
-    border: 1px solid white; /* Adds a border to the table */
+    border: 2px solid white; /* Adds a border to the table */
     border-radius: 5px; /* Rounds the corners of the table */
     overflow: hidden; /* Ensures the border radius is applied to the entire table */
 }

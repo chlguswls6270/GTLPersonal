@@ -38,7 +38,7 @@ body {
 	grid-column-end: 4;
 	grid-row-start: 1;
 	grid-row-end: 2;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     transition: 0.3s;
@@ -76,31 +76,6 @@ body {
 	grid-row-end: 2;
     border-radius: 5px;
 }
-
-/* .buttons-first-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    grid-area: buttons-first-rowuttons;
-    gap: 10px;
-    flex-wrap: wrap;
-    grid-column-start: 1;
-	grid-column-end: 3;
-	grid-row-start: 2;
-	grid-row-end: 3;
-}
-.buttons-second-row {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    grid-area: buttons-second-row;
-    gap: 10px;
-    flex-wrap: wrap;
-    grid-column-start: 1;
-	grid-column-end: 3;
-	grid-row-start: 3;
-	grid-row-end: 4;
-} */
 
 .playButton {
     height: 100%;
@@ -198,7 +173,7 @@ button {
     border-radius: 5px;
     transition: 0.3s;
     font-size: 1.2em;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     transition: 0.3s;
@@ -217,7 +192,7 @@ input[type="text"] {
     border: none;
     box-sizing: border-box;
     color: white;
-    border: 1px solid white;
+    border: 2px solid white;
     border-radius: 5px;
 }
 
@@ -227,7 +202,7 @@ input[type="submit"] {
     cursor: pointer;
     background-color: #1B1B1B;
     color: white;
-    border: 1px solid white;
+    border: 2px solid white;
     border-radius: 5px;
     transition: 0.3s;
     width: 100%; /* Ensure submit button takes full width of the grid column */
@@ -293,7 +268,7 @@ input[type="submit"]:hover {
     background-color: black;
     margin:  auto; /* 15% from the top and centered */
     padding: 20px;
-    border: 1px solid white;
+    border: 2px solid white;
     min-width: 50%; /* Could be more or less, depending on screen size */
     min-height: 30%;
     max-width: 80%; /* Could be more or less, depending on screen size */
@@ -313,7 +288,7 @@ input[type="submit"]:hover {
     padding: 10px 20px;
     cursor: pointer;
     background-color: 1B1B1B;
-    border: 1px solid white;
+    border: 2px solid white;
     color: white;
     border-radius: 5px;
     transition: 0.3s;
@@ -330,37 +305,52 @@ input[type="submit"]:hover {
        only screen and (max-device-width: 768px),
        only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
     .container {
-        overflow-x: auto;
-        padding: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* Two columns: video and ad */
+        grid-template-rows: 200px 60px 60px 1fr 60px; /* Two rows: content and buttons */
         gap: 10px;
-        display: flex;
-        flex-direction: column;
+        width: 100%;
+        height: 100%;
     }
 
-    #ad-container {
-        flex: 3;
+    #player-container {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 1 / 2;
+    }
+
+    .playButton {
+        grid-column: 1 / 2; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+
+    .pauseButton {
+        grid-column: 2 / 3; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+    .backToQuizButton {
+        grid-column: 3 / 4; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+
+    .formContainer {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 3 / 4;
     }
 
     .input-submit {
-        overflow-x: auto;
-        padding: 10px;
-        gap: 10px;
-        display: flex;
-        flex-direction: column;
+        grid-template-columns: 1fr 70px;
     }
 
-    .button-container {
-        overflow-x: auto;
-        padding: 10px;
-        gap: 10px;
-        display: flex;
-        flex-direction: column;
+    #ad-container {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 4 / 5;
+    }
+    .home-button {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 5 / 6;
     }
 
-    button {
-        border: 2.5px solid white;
-        color: white;
-        border-radius: 10px;
-        transition: 0.3s;
+    input[type="text"] {
+        font-size: 1em;
     }
 }
