@@ -14,38 +14,36 @@
     <title>Guess Lyrics</title>
     <script src="https://cdn.jsdelivr.net/npm/jwt-decode/build/jwt-decode.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
 </head>
 
 <body>
     <div class="title-container">
         <h1>Guess<br>Lyrics</h1>
     </div>
+    <div class="login-row" id="login-row">
+        <div id="custom-signin"></div>
+    </div>
     <div class="button-container">
-        <div class="login-row" id="login-row">
-            <div id="custom-signin"></div>
-        </div>
-        <div class="upper-row">
-            <button id="start">
-                Practice Solo<br>
-                <p>Practice on your own</p>
-                <p>혼자 연습하기</p>
-            </button>
-            <button id="multGame">
-                Random Match<br>
-                <p>Compete against strangers online</p>
-                <p>랜덤 매칭</p>
-            </button>
-            <button id="multPrivateGame">
-                Play with Friends<br>
-                <p>Create a private room and invite friends</p>
-                <p>방 만들어서 친구와 게임하기</p>
-            </button>
-        </div>
-        <div class="lower-row">
-            <button id="addGame">Add Game</button>
-            <button id="ranking">Ranking</button>
-            <button id="form">Feedback</button>
-        </div>
+        <button id="start" class="upper-row">
+            Practice Solo<br>
+            <p>Practice on your own</p>
+            <p>혼자 연습하기</p>
+        </button>
+        <button id="multGame" class="upper-row">
+            Random Match<br>
+            <p>Compete against strangers online</p>
+            <p>랜덤 매칭</p>
+        </button>
+        <button id="multPrivateGame" class="upper-row">
+            Play with Friends<br>
+            <p>Create a private room and invite friends</p>
+            <p>방 만들어서 친구와 게임하기</p>
+        </button>
+        <button id="addGame" class="lower-row"><i class="fa-regular fa-square-plus"></i> <span>Add Game</span></button>
+        <button id="ranking" class="lower-row"><i class="fa-solid fa-trophy"></i> <span>Ranking</span></button>
+        <button id="form" class="lower-row"><i class="fa-solid fa-clipboard-list"></i> <span>Feedback</span></button>
     </div>
 
     <div class="profile-container" id="profile-container">
