@@ -1,0 +1,355 @@
+* {
+    font-family: "Gugi", sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    background-color: black;
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 300px; /* Two columns: video and ad */
+    grid-template-rows: 1fr 70px 70px; /* Two rows: content and buttons */
+    gap: 10px;
+    /* margin: 10px; */
+    width: 100%;
+    /* max-width: 1200px; */
+    height: 100%;
+    /* grid-template-areas:
+        "player ad"
+        "buttons-first-row"
+        "buttons-second-row"; */
+}
+
+#player-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    grid-area: player;
+    background: #000;
+    grid-column-start: 1;
+	grid-column-end: 4;
+	grid-row-start: 1;
+	grid-row-end: 2;
+    border: 2px solid white;
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+    box-sizing: border-box;
+}
+
+#player {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 5px;;
+}
+
+#overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    z-index: 10; /* Ensure the overlay is above the video player */
+}
+
+#ad-container {
+    background-color: #ccc;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    grid-column-start: 4;
+	grid-column-end: 5;
+	grid-row-start: 1;
+	grid-row-end: 2;
+    border-radius: 5px;
+}
+
+.playButton {
+    height: 100%;
+    width: 100%;
+    justify-self: center; /* Center horizontally */
+    align-self: center; /* Center vertically */
+    grid-column-start: 1;
+	grid-column-end: 2;
+	grid-row-start: 2;
+	grid-row-end: 3;
+}
+
+.pauseButton {
+    height: 100%;
+    width: 100%;
+    justify-self: center; /* Center horizontally */
+    align-self: center; /* Center vertically */
+    grid-column-start: 2;
+	grid-column-end: 3;
+	grid-row-start: 2;
+	grid-row-end: 3;
+}
+
+.backToQuizButton {
+    height: 100%;
+    width: 100%;
+    justify-self: center; /* Center horizontally */
+    align-self: center; /* Center vertically */
+    grid-column-start: 3;
+	grid-column-end: 4;
+	grid-row-start: 2;
+	grid-row-end: 3;
+}
+
+
+
+.home-button {
+    height: 100%;
+    width: 100%;
+    justify-self: center; /* Center horizontally */
+    align-self: center; /* Center vertically */
+    grid-column-start: 4;
+	grid-column-end: 5;
+	grid-row-start: 2;
+	grid-row-end: 3;
+}
+
+.formContainer {
+    height: 100%;
+    align-self: center; /* Center vertically */
+    grid-column: 1 / 5; /* Position in the first column */
+    grid-row: 3 / 4;
+    grid-template-columns: 1fr;
+}
+
+#userForm {
+    height: 100%;
+    width: 100%;
+}
+#inputField {
+    height: 100%;
+}
+#submitButton {
+    height: 100%;
+}
+
+.input-submit {
+    height: 100%;
+    justify-self: center; /* Center horizontally */
+    align-self: center; /* Center vertically */
+    width: 100%;
+    display: grid;
+    gap: 10px;
+    grid-template-columns: 1fr 300px;
+}
+
+.inputField {
+    width: 100%;
+    height: 100%;
+    grid-column: 1 / 2; /* Position in the first column */
+}
+
+.submitButton {
+    width: 100%;
+    height: 100%;
+    grid-column: 2 / 3; /* Position in the first column */
+}
+
+button {
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+    background-color: #1B1B1B;
+    border-radius: 5px;
+    transition: 0.3s;
+    font-size: 1.2em;
+    border: 2px solid white;
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+button:hover {
+    background-color: white;
+    color: black;
+}
+
+input[type="text"] {
+    background-color: #1B1B1B;
+    padding: 10px;
+    font-size: 2em;
+    width: 100%; /* Take full width of the grid column */
+    border: none;
+    box-sizing: border-box;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+}
+
+input[type="submit"] {
+    padding: 10px;
+    font-size: 1.2em;
+    cursor: pointer;
+    background-color: #1B1B1B;
+    color: white;
+    border: 2px solid white;
+    border-radius: 5px;
+    transition: 0.3s;
+    width: 100%; /* Ensure submit button takes full width of the grid column */
+}
+
+input[type="submit"]:hover {
+    background-color: white;
+    color: black;
+}
+
+.countdown {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    font-size: 100px;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+    z-index: 100; /* Ensure the countdown is above everything */
+}
+
+#objID {
+    display: none;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 15; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+#gameDidNotStart {
+    display: flex;
+    z-index: 15;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    justify-content: center;
+    align-items: center;
+}
+
+#customAlert {
+    display: none;
+    z-index: 15;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: black;
+    margin:  auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 2px solid white;
+    min-width: 50%; /* Could be more or less, depending on screen size */
+    min-height: 30%;
+    max-width: 80%; /* Could be more or less, depending on screen size */
+    max-height: 80%;
+    border-radius: 5px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.modal button {
+    margin: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+    background-color: 1B1B1B;
+    border: 2px solid white;
+    color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+.modal button:hover {
+    background-color: white;
+    color: black;
+}
+
+
+/* Mobile styles (for narrow screens) */
+@media only screen and (max-width: 768px), 
+       only screen and (max-device-width: 768px),
+       only screen and (max-width: 768px) and (-webkit-min-device-pixel-ratio: 2) {
+    .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr; /* Two columns: video and ad */
+        grid-template-rows: 200px 60px 60px 1fr 60px; /* Two rows: content and buttons */
+        gap: 10px;
+        width: 100%;
+        height: 100%;
+    }
+
+    #player-container {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 1 / 2;
+    }
+
+    .playButton {
+        grid-column: 1 / 2; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+
+    .pauseButton {
+        grid-column: 2 / 3; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+    .backToQuizButton {
+        grid-column: 3 / 4; /* Position in the first column */
+        grid-row: 2 / 3;
+    }
+
+    .formContainer {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 3 / 4;
+    }
+
+    .input-submit {
+        grid-template-columns: 1fr 70px;
+    }
+
+    #ad-container {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 4 / 5;
+    }
+    .home-button {
+        grid-column: 1 / 4; /* Position in the first column */
+        grid-row: 5 / 6;
+    }
+
+    input[type="text"] {
+        font-size: 1em;
+    }
+}

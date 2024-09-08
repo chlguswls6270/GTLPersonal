@@ -32,21 +32,25 @@
             <div id="secondRow">
                 <div class="set" id="firstSet">
                     <input type="text" name="startTime" id="startTime" placeholder="Music starts"/>
-                    <button type = 'button' id="startTimeButton">A</button>
+                    <button type = 'button' id="startTimeButton" class="autoButton">A</button>
+                    <button type = 'button' id="jumpToStartTime" class="jumpButton">J</button>
                 </div>
                 <div class="set" id="secondSet">
                     <input type="text" name="quizStartTime" id="quizStartTime" placeholder="Quiz starts">
-                    <button type = 'button' id="quizStartTimeButton">A</button>
+                    <button type = 'button' id="quizStartTimeButton" class="autoButton">A</button>
+                    <button type = 'button' id="jumpToQuizStartTime" class="jumpButton">J</button>
                 </div>
                 <div class="set" id="thirdSet">
                     <input type="text" name="quizEndTime" id="quizEndTime" placeholder="Quiz Ends">
-                    <button type = 'button' id="quizEndTimeButton">A</button>
+                    <button type = 'button' id="quizEndTimeButton" class="autoButton">A</button>
+                    <button type = 'button' id="jumpToQuizEndTime" class="jumpButton">J</button>
                 </div>
             </div>
             <div id="thirdRow">
                 <input type="text" name="lyrics" id="lyrics" placeholder="Lyrics">
                 <input type="reset" id="reset"/>
                 <input type="submit" value="Submit" id="submit"/>
+                <button id="demo">Demo</button>
             </div>
             <div id="notShown">
                 <input type="text" name="youtubeURL" id="youtubeURLForm"/>
@@ -57,6 +61,19 @@
 
     <script src="https://www.youtube.com/iframe_api"></script>
     <script>
+
+        document.getElementById('demo').addEventListener('click', function() {
+            event.preventDefault(); // Prevent form submission
+            console.log("=============clicked demo")
+            const youtubeURL = document.getElementById('youtubeURLForm').value;
+            const youtubeId = extractYouTubeVideoID(youtubeURL)
+            const startTime = document.getElementById('startTime').value;
+            const quizStartTime = document.getElementById('quizStartTime').value;
+            const quizEndTime = document.getElementById('quizEndTime').value;
+
+            window.location.href = `songList/game/${youtubeId}/${startTime}/${quizStartTime}/${quizEndTime}`;
+        });
+
         // Add JavaScript here to handle the reset event
         document.getElementById('timeForm').addEventListener('reset', function (event) {
             // Save the values of the fields you want to exclude from reset
@@ -161,6 +178,27 @@
                 let field = document.getElementById('quizEndTime');
                 //field.value = formatTime(time);
                 field.value = time;
+            });
+
+            document.getElementById('jumpToStartTime').addEventListener('click', function() {
+                console.log("here here!!")
+                let startTime = document.getElementById('startTime').value;
+                startTime = parseFloat(startTime)
+                player.seekTo(startTime, true); // Jump to 30 seconds
+            });
+
+            document.getElementById('jumpToQuizStartTime').addEventListener('click', function() {
+                console.log("here here!!")
+                let quizStartTime = document.getElementById('quizStartTime').value;
+                quizStartTime = parseFloat(quizStartTime)
+                player.seekTo(quizStartTime, true); // Jump to 30 seconds
+            });
+
+            document.getElementById('jumpToQuizEndTime').addEventListener('click', function() {
+                console.log("here here!!")
+                let quizEndTime = document.getElementById('quizEndTime').value;
+                quizEndTime = parseFloat(quizEndTime)
+                player.seekTo(quizEndTime, true); // Jump to 30 seconds
             });
         }
 

@@ -160,6 +160,33 @@ app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/:objID', async (req, 
     
 });
 
+app.get('/songList/game/:id/:startTime/:quizStart/:quizEnd/', async (req, res) => {
+    const id = req.params.id;
+    const startTime = parseFloat(req.params.startTime);
+    const quizStart = parseFloat(req.params.quizStart);
+    const quizEnd = parseFloat(req.params.quizEnd);
+    //const quizEnd = convertTimeToSeconds(req.params.quizEnd);
+    console.log("========start time: " + startTime)
+    console.log("-=======start time param: " + req.params.startTime)
+        
+    let portTemp;
+    if (port) {
+        portTemp = port;
+    } else {
+        portTemp = `http://localhost:${portNumber}`
+    }
+    const variables = {
+        id: id, 
+        startTime: startTime, 
+        quizStartTime: quizStart, 
+        quizEndTime: quizEnd,
+        port: portTemp,
+        solution: "Not Needed",
+    };
+
+    res.render('demo', variables);
+});
+
 app.get("/addGame", (request, response) => {
     let portTemp;
     if (port) {
